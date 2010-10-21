@@ -30,7 +30,6 @@ var database = openDatabase(
 );
 
 
-if !($page.data("loaded")) {
 
 // create first table if it doesn't exist
 database.transaction(
@@ -120,9 +119,6 @@ function(data){
   });
 });
 
-$page.data("loaded" true);
-
-} // end db_loaded check
 
 
 /////////////////////////////////////
