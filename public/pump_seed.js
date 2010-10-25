@@ -1,42 +1,34 @@
 {
 	"workouts" : [
 	{
-		"id"	 : "strength-phase-i", 
 		"name" : "Strength Phase I",
 		"type" : "cycling"
 	},
 	{
-		"id"	 : "strength-phase-ii", 
 		"name" : "Strength Phase II",
 		"type" : "cycling"
 	},
 	{
-		"id"	 : "strength-phase-iii", 
 		"name" : "Strength Phase III",
 		"type" : "cycling"
 	},
 	{
-		"id"	 : "shoulders-and-abs", 
 		"name" : "Shoulders and Abs",
 		"type" : "weights"
 	},
 	{
-		"id"	 : "legs", 
 		"name" : "Legs",
 		"type" : "weights"
 	},
 	{
-		"id"	 : "deadlifts-and-forearms", 
 		"name" : "Deadlifts and Forearms",
 		"type" : "weights"
 	},
 	{
-		"id"	 : "chest-and-triceps", 
 		"name" : "Chest and Triceps",
 		"type" : "weights"
 	},
 	{
-		"id"	 : "back-and-biceps", 
 		"name" : "Back and Biceps",
 		"type" : "weights"
 	}

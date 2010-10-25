@@ -22,6 +22,9 @@
 
   </head>
   <body>
+    
+    
+
     <div class="current" id="home">
       <div class="toolbar">
         <h1><img src="/pump_logo.png"></h1>
@@ -31,48 +34,49 @@
         <p>Tap a workout to see exercises.</p>
       </div>
       <h2>Workouts</h2>
+      
       <ul id="workouts" class="rounded">
+        <li><a href="#ex">Sample Workout</a></li>
+      </ul>
+    </div>
+    
+    <div id="ex">
+      <div class="toolbar">
+        <a class="back" href="#">Back</a>
+        <h1>Sample Workout</h1>
+      </div>
+      <ul id="exercises" class="plastic">
+        <li class="arrow"><a href="#rep" title="record_1">Sample Exercise</a></li>
+        <li class="arrow"><a href="#rep" title="record_2">Sample Exercise 2</a></li>
         
       </ul>
     </div>
-
-    <!-- set recording form -->
-    <div id="record_set">
+      
+    <div id="rep">
       <div class="toolbar">
         <a class="back" href="#">Back</a>
-        <h1>Recording Set</h1>
-      </div>
-      <div class="info">
-        <!-- populated with exercise span -->
+        <h1>Record a Set</h1>
       </div>
       <form id="set_form" action="" method="post" accept-charset="utf-8">
+        <input type="hidden" id="ex_id" name="ex_id" value="x_placeholder">
         <h2>Add Set</h2>
         <ul class="rounded">
           <li>
-            <input type="number" name="reps" class="reps" placeholder="Reps" />
+            <input type="number" name="reps" class="reps" placeholder="Reps">
           </li>
           <li>
-            <input type="number" name="weight" class="weight" placeholder="Weight" />
+            <input type="number" name="weight" class="weight" placeholder="Weight">
           </li>
-        </ul>
-        <a href="#" class="grayButton submit">Pump</a>
+        </ul><a href="#" class="grayButton submit">Pump</a>
       </form>
-
       <h2>Recorded Sets</h2>
       <ul id="sets">
         <li>None</li>
-      </ul>    
-  </div>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    
+      </ul>
+      
+    </div>
+
+      
+      
   </body>
 </html>

@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>public/pump_seed.js</string>
+	<string>public/jqtouch/mobile.js</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -40,28 +40,44 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>18</integer>
+				<integer>37</integer>
 				<key>line</key>
-				<integer>48</integer>
+				<integer>49</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>41</integer>
+			<integer>32</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>36</integer>
+				<key>line</key>
+				<integer>49</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>39</integer>
+				<key>line</key>
+				<integer>49</integer>
+			</dict>
 		</dict>
 		<key>public/jqtouch/mobile.js</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>22</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>265</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>213</integer>
+			<integer>255</integer>
 		</dict>
 		<key>public/pump_logo.png</key>
 		<dict>
@@ -82,9 +98,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>38</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>117</integer>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -95,7 +111,6 @@
 	<key>openDocuments</key>
 	<array>
 		<string>public/jqtouch/mobile.js</string>
-		<string>public/pump_seed.js</string>
 		<string>public/index.html</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
@@ -129,6 +144,6 @@
 		</dict>
 	</dict>
 	<key>windowFrame</key>
-	<string>{{0, 48}, {720, 830}}</string>
+	<string>{{-1, 48}, {1440, 830}}</string>
 </dict>
 </plist>
