@@ -29,13 +29,14 @@ var database = openDatabase(
 	databaseOptions.maxSize
 );
 
+
 function dbCreate() {
 	database.transaction(
 		function(transaction) {
 			// holds each workout
 			transaction.executeSql(
 				"CREATE TABLE IF NOT EXISTS workout (" +
-				"id TEXT NOT NULL PRIMARY KEY," +
+				"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
 				"name TEXT UNIQUE NOT NULL," +
 				"type TEXT" +
 				");"
@@ -64,7 +65,7 @@ function dbCreate() {
 			// holds set data per each exercise
 			// FIXME: store highest total weight lifted for comparison (reps * weight)
 			transaction.executeSql(
-				"CREATE TABLE IF NOT EXISTS set (" +
+				"CREATE TABLE IF NOT EXISTS pump (" +
 				"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
 				"ex_id INTEGER NOT NULL," +
 				"rep_date TEXT NOT NULL," + 
@@ -76,13 +77,14 @@ function dbCreate() {
 	);
 }
 
+
 // grab seed data from a json file
 $.getJSON("/pump_seed.js", function(data){
 	$.each(data.workouts, function(i,item){
 		// for each of the workouts found, assign them to variables
 		var workoutImportName	= item.name;
 		var workoutImportType	= item.type;
-
+	
 		// insert each workout into the db
 		database.transaction(function(transaction) {
 			transaction.executeSql('INSERT OR IGNORE INTO workout (name,type) VALUES (?, ?);',
@@ -156,7 +158,7 @@ var saveSet = function(ex_id, weight, reps, callback) {
 	
 	// insert set into the database
 	database.transaction(function(transaction){
-		transaction.executeSql('INSERT INTO rep (ex_id,"rep_date",weight,reps) VALUES (?, ?, ?, ?);',
+		transaction.executeSql('INSERT INTO pump (ex_id,"rep_date",weight,reps) VALUES (?, ?, ?, ?);',
 		[ ex_id, rep_date, weight, reps ],
 		function (transaction, results) {
     	callback(results.insertId);
@@ -168,7 +170,7 @@ var saveSet = function(ex_id, weight, reps, callback) {
 var getSets = function(callback, ex_id) {
 	database.transaction(
 		function(transaction) {
-			transaction.executeSql('SELECT * FROM rep WHERE ex_id=' + ex_id + ';', [],
+			transaction.executeSql('SELECT * FROM pump WHERE ex_id=' + ex_id + ';', [],
 			// used as handler on 'get'
       function (transaction, results) {
 				console.log('Getting sets for exercise id' + ex_id +'');
@@ -183,7 +185,7 @@ var getSets = function(callback, ex_id) {
 var deleteSets = function(callback) {
 	database.transaction(
 		function(transaction) {
-			transaction.executeSql('DELETE FROM rep;', [], 
+			transaction.executeSql('DELETE FROM pump;', [], 
 			function() {
 				callback();
 			}, errorHandler);
@@ -191,25 +193,6 @@ var deleteSets = function(callback) {
 	);
 };
 
-// get all workouts in a workout
-var getWorkouts = function(callback) {
-	database.transaction(
-		function(transaction) {
-			transaction.executeSql('SELECT * FROM workout ORDER BY name;', [],
-			// used as handler on 'get'
-      function (transaction, results) {
-      	callback(results);
-      }, errorHandler);
-		}
-	);
-};
-
-// get all exercises in a workout
-var getExercises = function(callback, w_id) {
-	var ex_id = null;
-	
-
-}
 
 // convert sentence to lowercase with underscores
 function convertToDynamic(text)
@@ -228,28 +211,6 @@ function convertToDynamic(text)
 // when the DOM is ready, init scripts
 $(document).ready(function(e){
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/////////////////////////////////////
-// START NEW PUMP CODE ///////////////
-/////////////////////////////////////
-
 	// setting click event, so behavior is correct when viewing on iphone vs. simulator, or web page
 	var userAgent = navigator.userAgent.toLowerCase();
 	var isiPhone = (userAgent.indexOf('iphone') != -1 || userAgent.indexOf('ipod') != -1) ? true : false;
@@ -261,26 +222,57 @@ $(document).ready(function(e){
 	// RENDERING EVENTS ///
 	///////////////////////
 	
+	// showing initial workout list
+	console.log('preparing workouts list');
+	
+	// empty current list of exercises
+	$('#workouts').empty();
+	
+	// when a single workout is clicked, load the exercises for that workout
+	database.transaction(function(transaction) {
+		transaction.executeSql('SELECT workout.id,workout.name,workout.type FROM workout;', [],
+		function (transaction, results) {
+			$.each(
+				results.rows,
+				function(rowIndex) {
+					var row = results.rows.item(rowIndex);
+					console.log('displaying workout id: ' + row.id);
+					$('#workouts').append('<li><a href="#ex" title="' + row.id + '">' + row.name + '</a></li>');
+				}
+			);
+		}, errorHandler);
+	});
+	
+	
 	// when a single workout is clicked
-	$('#workouts li a').bind(clickEvent, function(event, info){
-		//$('#exercises').empty();
+	$('#workouts li a').livequery(clickEvent, function(event, info){
+		console.log('workout was clicked');
+		
+		// empty current list of exercises
+		$('#exercises').empty();
+		
+		// get the id of the workout that was clicked
+		var workout_id = $(this).attr('title');
+		
 		
 		// when a single workout is clicked, load the exercises for that workout
 		database.transaction(function(transaction) {
-			transaction.executeSql('SELECT exercise.id,exercise.name,exercise.info FROM exercise INNER JOIN relationship ON exercise.id=relationship.exercise_id WHERE workout_id="back-and-biceps";', [],
-	      function (transaction, results) {
-			    $.each(
-			    	results.rows,
-			    	function(rowIndex) {
-							var row = results.rows.item(rowIndex);
-							console.log('displaying exercise id: ' + row.id);
-							$('#exercises').append('<li class="arrow"><a href="#rep" title="' + row.id + '">' + row.name + '</a></li>');
-						}
-					);
-	      }, errorHandler);
-			});
-			
+			transaction.executeSql('SELECT exercise.id,exercise.name,exercise.info FROM exercise INNER JOIN relationship ON exercise.id=relationship.exercise_id WHERE workout_id="' + workout_id + '";', [],
+			function (transaction, results) {
+				$.each(
+					results.rows,
+					function(rowIndex) {
+						var row = results.rows.item(rowIndex);
+						console.log('displaying exercise id: ' + row.id);
+						$('#exercises').append('<li class="arrow"><a href="#rep" title="' + row.id + '">' + row.name + '</a></li>');
+					}
+				);
+			}, errorHandler);
 		});
+
+		console.log('getting ready for workout id: ' + workout_id);
+
+	});
 		
 	// sliding exercise list in
 	$('#ex').bind('pageAnimationStart', function(event, info){
@@ -293,9 +285,10 @@ $(document).ready(function(e){
 	// FIXME: this is working properly for hardcoded exercise items, but not for ajaxed ones
 	// (it's not registering a click event for some reason.)
 	$('#ex li a').livequery(clickEvent, function(event, info){
+		console.log('exercise was clicked');
+		
 		// get the ID of the exercise from the 'title' attribute of the exercise tapped
 		var exercise_id = $(this).attr('title');
-		console.log('exercise was clicked');
 		// append a hidden input with this ID to the form, so when it's submitted we know
 		// which exercise to add the set to
 		$('#ex_id').val(exercise_id);
