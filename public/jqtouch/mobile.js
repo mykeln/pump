@@ -274,7 +274,7 @@ $(document).ready(function(e){
 			    	function(rowIndex) {
 							var row = results.rows.item(rowIndex);
 							console.log('displaying exercise id: ' + row.id);
-							$('#exercises').append('<li class="arrow"><a href="#rep" title="record_' + row.id + '">' + row.name + '</a></li>');
+							$('#exercises').append('<li class="arrow"><a href="#rep" title="' + row.id + '">' + row.name + '</a></li>');
 						}
 					);
 	      }, errorHandler);
@@ -292,17 +292,16 @@ $(document).ready(function(e){
 	// when a single exercise is clicked
 	// FIXME: this is working properly for hardcoded exercise items, but not for ajaxed ones
 	// (it's not registering a click event for some reason.)
-	$('#ex ul li a').bind(clickEvent, function(event, info){
+	$('#ex li a').livequery(clickEvent, function(event, info){
 		// get the ID of the exercise from the 'title' attribute of the exercise tapped
 		var exercise_id = $(this).attr('title');
 		console.log('exercise was clicked');
 		// append a hidden input with this ID to the form, so when it's submitted we know
 		// which exercise to add the set to
 		$('#ex_id').val(exercise_id);
-		console.log('getting ready for ' + exercise_id);
+		console.log('getting ready for exercise id: ' + exercise_id);
 	});
 	
-
 	// sliding set list in
 	$('#rep').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
