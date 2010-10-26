@@ -29,102 +29,111 @@ var database = openDatabase(
 	databaseOptions.maxSize
 );
 
+// setting dataLoad object, which stores the state of the database
+var dataLoad = localStorage.getItem('data');
 
-function dbCreate() {
-	database.transaction(
-		function(transaction) {
-			// holds each workout
-			transaction.executeSql(
-				"CREATE TABLE IF NOT EXISTS workout (" +
-				"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
-				"name TEXT UNIQUE NOT NULL," +
-				"type TEXT" +
-				");"
-			);
+// if the database isn't loaded yet
+if (!(dataLoad)){
 	
-			// holds each exercise, along with technique information
-			// FIXME: technique information will likely be replaced with personal record data
-			// FIXME: allow multiple infos to be set (for strength vs. power workouts, but same exercise)
-			transaction.executeSql(
-				"CREATE TABLE IF NOT EXISTS exercise (" +
-				"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
-				"name TEXT UNIQUE NOT NULL," +
-				"info TEXT NOT NULL" +
-				");"
-			);
+	// create the tables
+	console.log('this is the first run, so i am loading the db');
+	database.transaction(function(transaction){
+		// holds each workout
+		transaction.executeSql(
+			"CREATE TABLE IF NOT EXISTS workout (" +
+			"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+			"name TEXT UNIQUE NOT NULL," +
+			"type TEXT" +
+			");"
+		);
+
+		// holds each exercise, along with technique information
+		// FIXME: technique information will likely be replaced with personal record data
+		// FIXME: allow multiple infos to be set (for strength vs. power workouts, but same exercise)
+		transaction.executeSql(
+			"CREATE TABLE IF NOT EXISTS exercise (" +
+			"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+			"name TEXT UNIQUE NOT NULL," +
+			"info TEXT NOT NULL" +
+			");"
+		);
 	
-			// links exercises to workouts. bridge table.
-			transaction.executeSql(
-				"CREATE TABLE IF NOT EXISTS relationship (" +
-				"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
-				"workout_id TEXT NOT NULL," +
-				"exercise_id INT NOT NULL" +
-				");"
-			);
-	
-			// holds set data per each exercise
-			// FIXME: store highest total weight lifted for comparison (reps * weight)
-			transaction.executeSql(
-				"CREATE TABLE IF NOT EXISTS pump (" +
-				"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
-				"ex_id INTEGER NOT NULL," +
-				"rep_date TEXT NOT NULL," + 
-				"weight INTEGER NOT NULL," +
-				"reps INTEGER NOT NULL" +
-				");"
-			);
-		}
-	);
-}
+
+		// links exercises to workouts. bridge table.
+		transaction.executeSql(
+			"CREATE TABLE IF NOT EXISTS relationship (" +
+			"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+			"workout_id TEXT NOT NULL," +
+			"exercise_id INT NOT NULL" +
+			");"
+		);
 
 
-// grab seed data from a json file
-$.getJSON("/pump_seed.js", function(data){
-	$.each(data.workouts, function(i,item){
-		// for each of the workouts found, assign them to variables
-		var workoutImportName	= item.name;
-		var workoutImportType	= item.type;
+		// holds set data per each exercise
+		// FIXME: store highest total weight lifted for comparison (reps * weight)
+		transaction.executeSql(
+			"CREATE TABLE IF NOT EXISTS pump (" +
+			"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+			"ex_id INTEGER NOT NULL," +
+			"rep_date TEXT NOT NULL," + 
+			"weight INTEGER NOT NULL," +
+			"reps INTEGER NOT NULL" +
+			");"
+		);
+	}, errorHandler);
 	
-		// insert each workout into the db
-		database.transaction(function(transaction) {
-			transaction.executeSql('INSERT OR IGNORE INTO workout (name,type) VALUES (?, ?);',
-			[ workoutImportName, workoutImportType ]);
-		});
-	});
-
-	$.each(data.exercises, function(i,item){
-		// for each of the exercises found, assign them to variables
-		var exerciseImportName = item.name;
-		var exerciseImportInfo = item.info;
-		
-		// split the 'workouts' object in the json into separate parts
-		// this is how the app knows which exercise to assign to which workout
-		// FIXME: find a better way to do this
-		var exerciseImportWorkouts = item.workouts.split(',');
+	// grab seed data from a json file
+	$.getJSON("/pump_seed.js", function(data){
+		$.each(data.workouts, function(i,item){
+			// for each of the workouts found, assign them to variables
+			var workoutImportName	= item.name;
+			var workoutImportType	= item.type;
 	
-		// setting exercise_id here so the nested each below can access it
-		var exercise_id = null;
-
-		// inserting item into the db
-		database.transaction(function(transaction){
-			transaction.executeSql('INSERT OR IGNORE INTO exercise (name,info) VALUES (?, ?);',
-			[ exerciseImportName, exerciseImportInfo ],
-			function (transaction, results) {
-				// getting the id of the inserted exercise
-				exercise_id = results.insertId;
-			});
-		});
-		
-		$.each(exerciseImportWorkouts, function(j,workout_id){
-			// for each exercise/workout combination, add an entry to the relationship table
+			// insert each workout into the db
 			database.transaction(function(transaction) {
-					transaction.executeSql('INSERT OR IGNORE INTO relationship (exercise_id,workout_id) VALUES (?, ?);',
-					[ exercise_id, workout_id ]);
+				transaction.executeSql('INSERT OR IGNORE INTO workout (name,type) VALUES (?, ?);',
+				[ workoutImportName, workoutImportType ]);
+			});
+		});
+
+		$.each(data.exercises, function(i,item){
+			// for each of the exercises found, assign them to variables
+			var exerciseImportName = item.name;
+			var exerciseImportInfo = item.info;
+		
+			// split the 'workouts' object in the json into separate parts
+			// this is how the app knows which exercise to assign to which workout
+			// FIXME: find a better way to do this
+			var exerciseImportWorkouts = item.workouts.split(',');
+	
+			// setting exercise_id here so the nested each below can access it
+			var exercise_id = null;
+
+			// inserting item into the db
+			database.transaction(function(transaction){
+				transaction.executeSql('INSERT OR IGNORE INTO exercise (name,info) VALUES (?, ?);',
+				[ exerciseImportName, exerciseImportInfo ],
+				function (transaction, results) {
+					// getting the id of the inserted exercise
+					exercise_id = results.insertId;
+				});
+			});
+		
+			$.each(exerciseImportWorkouts, function(j,workout_id){
+				// for each exercise/workout combination, add an entry to the relationship table
+				database.transaction(function(transaction) {
+						transaction.executeSql('INSERT OR IGNORE INTO relationship (exercise_id,workout_id) VALUES (?, ?);',
+						[ exercise_id, workout_id ]);
+				});
 			});
 		});
 	});
-});
 
+	// setting data loaded to true
+	// FIXME: put this in the 'success' area of the function
+	localStorage.setItem('data', true);
+
+}
 
 
 /////////////////////////////////////
@@ -208,6 +217,7 @@ function convertToDynamic(text)
 // RENDERING APP ///////////////////
 ////////////////////////////////////
 
+
 // when the DOM is ready, init scripts
 $(document).ready(function(e){
 
@@ -222,27 +232,28 @@ $(document).ready(function(e){
 	// RENDERING EVENTS ///
 	///////////////////////
 	
-	// showing initial workout list
-	console.log('preparing workouts list');
-	
-	// empty current list of exercises
-	$('#workouts').empty();
-	
-	// when a single workout is clicked, load the exercises for that workout
-	database.transaction(function(transaction) {
-		transaction.executeSql('SELECT workout.id,workout.name,workout.type FROM workout;', [],
-		function (transaction, results) {
-			$.each(
-				results.rows,
-				function(rowIndex) {
-					var row = results.rows.item(rowIndex);
-					console.log('displaying workout id: ' + row.id);
-					$('#workouts').append('<li><a href="#ex" title="' + row.id + '">' + row.name + '</a></li>');
-				}
-			);
-		}, errorHandler);
-	});
-	
+	if ($('#workouts').length) {  
+		// showing initial workout list
+		console.log('preparing workouts list');
+
+		// empty current list of exercises
+		$('#workouts').empty();
+
+		// when a single workout is clicked, load the exercises for that workout
+		database.transaction(function(transaction) {
+			transaction.executeSql('SELECT workout.id,workout.name,workout.type FROM workout;', [],
+			function (transaction, results) {
+				$.each(
+					results.rows,
+					function(rowIndex) {
+						var row = results.rows.item(rowIndex);
+						console.log('displaying workout id: ' + row.id);
+						$('#workouts').append('<li><a href="#ex" title="' + row.id + '">' + row.name + '</a></li>');
+					}
+				);
+			}, errorHandler);
+		});
+	}
 	
 	// when a single workout is clicked
 	$('#workouts li a').livequery(clickEvent, function(event, info){
