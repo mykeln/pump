@@ -71,7 +71,15 @@
 							<key>isExpanded</key>
 							<true/>
 							<key>subItems</key>
-							<dict/>
+							<dict>
+								<key>extensions</key>
+								<dict>
+									<key>isExpanded</key>
+									<true/>
+									<key>subItems</key>
+									<dict/>
+								</dict>
+							</dict>
 						</dict>
 					</dict>
 				</dict>
@@ -79,6 +87,6 @@
 		</dict>
 	</dict>
 	<key>windowFrame</key>
-	<string>{{230, 133}, {1440, 830}}</string>
+	<string>{{263, 165}, {1178, 713}}</string>
 </dict>
 </plist>

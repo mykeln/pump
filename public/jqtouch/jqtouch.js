@@ -341,8 +341,11 @@
             $(':focus').blur();
 
             // Make sure we are scrolled up to hide location bar
-            scrollTo(0, 0);
+            //scrollTo(0, 0);
             
+				   //FIX - stop animation jumping to top and flicker
+				   fromPage.css( 'webkitTransform', '');
+
             // Define callback to run after animation completes
             var callback = function(event){
 
@@ -384,6 +387,8 @@
                 toPage.addClass('current');
                 callback();
             }
+
+
 
             return true;
         }
