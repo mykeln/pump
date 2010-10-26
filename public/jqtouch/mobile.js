@@ -383,9 +383,6 @@ $(document).ready(function(e){
 			// resetting inputs, since the user had to click back to get here
 			weightInput.val("");
 		 	repInput.val("");
-		
-			// putting focus on weight, since this is the first time it's loaded
-			weightInput.focus();
 		 	
 			// setting exercise id to refresh sets for
 			var exercise_id = $('#ex_id').val();
@@ -433,12 +430,12 @@ $(document).ready(function(e){
 				
 				// reset the rep input only (typical for gym)
 			 	repInput.val("");
-			
-				// putting focus on rep input, since weight will probably stay the same
-				repInput.focus();
 
 				// refresh the exercise list
 				getSets(refreshSets, exercise_id);
+				
+				// putting focus on rep input, since weight will probably stay the same
+				repInput.focus();
 			});
 		} else {
 			console.log('whoops, something is wrong with what the user input');
