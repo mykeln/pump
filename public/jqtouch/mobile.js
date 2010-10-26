@@ -221,7 +221,7 @@ var refreshSets = function(results) {
 	  function(rowIndex) {
 			var row = results.rows.item(rowIndex);
 			// append the list item.
-			list.prepend("<li>" + row.reps + " reps of " + row.weight + " lbs<small><a href='#' class='delete' title='ZZ_exercise_id'>&times;</a></small></li>");
+			list.prepend("<li>" + row.reps + " reps of " + row.weight + " lbs</li>");
 			}
 	  );
 	}
