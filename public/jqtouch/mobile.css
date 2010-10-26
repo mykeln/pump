@@ -10,6 +10,6 @@ ul li input[type="number"] {
     -webkit-appearance: textarea;
 }
 
-ul li a.delete {
-	color: red;
-}
+.delete-button { 
+    display: none; 
+} 

@@ -8,6 +8,7 @@ var jQT = new $.jQTouch({
   addGlossToIcon: false,
   startupScreen:"apple-touch-startup.png",
   statusBar:'black-translucent',
+	touchSelector: '#sets li a',
   preloadImages:[
     '/jqtouch/themes/pump/img/back_button.png',
     '/jqtouch/themes/pump/img/back_button_clicked.png',
@@ -187,13 +188,13 @@ var saveSet = function(ex_id, weight, reps, callback) {
 };
 
 // get all sets in an exercise
-var getSets = function(callback, ex_id) {
+var getSets = function(callback, exercise_id) {
 	database.transaction(
 		function(transaction) {
-			transaction.executeSql('SELECT * FROM pump WHERE ex_id=' + ex_id + ';', [],
+			transaction.executeSql('SELECT * FROM pump WHERE ex_id=' + exercise_id + ';', [],
 			// used as handler on 'get'
       function (transaction, results) {
-				console.log('pulling sets for exercise id: ' + ex_id +'');
+				console.log('pulling sets for exercise id: ' + exercise_id +'');
 
       	callback(results);
       }, errorHandler);
@@ -203,16 +204,15 @@ var getSets = function(callback, ex_id) {
 
 // refresh the exercises list
 var refreshSets = function(results) {
-	var list = $("#sets");
-	
+
   // clear out the list of exercises
-  list.empty();
+  $('#sets').empty();
 
 	// if there aren't any recorded sets, put a placeholder
 	if (!(results)){
 		console.log('no recorded sets');
 		// appending a "none" item as a starting point
-		list.append("<li>None</li>");
+		$('#sets').append("<li>None</li>");
 	} else {
 		console.log('rendering sets');
 	  // loop over the current list of sets and add them
@@ -221,7 +221,7 @@ var refreshSets = function(results) {
 	  function(rowIndex) {
 			var row = results.rows.item(rowIndex);
 			// append the list item.
-			list.prepend("<li>" + row.reps + " reps of " + row.weight + " lbs</li>");
+			$('#sets').prepend("<li><a href='#'>" + row.reps + " reps of " + row.weight + " lbs</a><small><a href='#' class='delete-button'>Delete</a></li>");
 			}
 	  );
 	}
@@ -280,6 +280,8 @@ $(document).ready(function(e){
 		database.transaction(function(transaction) {
 			transaction.executeSql('SELECT workout.id,workout.name,workout.type FROM workout;', [],
 			function (transaction, results) {
+				console.log('rendering workouts');
+				
 				$.each(
 					results.rows,
 					function(rowIndex) {
@@ -287,8 +289,7 @@ $(document).ready(function(e){
 						// FIXME: count the amount of exercises per workout
 						
 						// render single workout
-						console.log('displaying workout id: ' + row.id);
-						$('#workouts').append('<li><a href="#ex" title="' + row.id + '">' + row.name + '</a></li>');
+						$('#workouts').append('<li><a href="#ex" data-identifier="' + row.id + '" title="' + row.name + '">' + row.name + '</a></li>');
 					}
 				);
 			}, errorHandler);
@@ -302,22 +303,29 @@ $(document).ready(function(e){
 		
 		console.log('workout was clicked');
 		
+		// empty the title of the workout
+		$('#ex .toolbar h1').empty();
+		
 		// empty current list of exercises
 		$('#exercises').empty();
 		
 		// get the id of the workout that was clicked
-		var workout_id = $(this).attr('title');
+		var workout_id	 = $(this).attr('data-identifier');
+		var workout_name = $(this).attr('title');
+		
+		$('#ex .toolbar h1').append(workout_name);
 		
 		// load the exercises for that workout
 		database.transaction(function(transaction) {
 			transaction.executeSql('SELECT exercise.id,exercise.name,exercise.info FROM exercise INNER JOIN relationship ON exercise.id=relationship.exercise_id WHERE workout_id="' + workout_id + '";', [],
 			function (transaction, results) {
+				console.log('rendering exercises');
+				
 				$.each(
 					results.rows,
 					function(rowIndex) {
 						var row = results.rows.item(rowIndex);
-						console.log('displaying exercise id: ' + row.id);
-						$('#exercises').append('<li class="arrow"><a href="#rep" title="' + row.id + '">' + row.name + '</a></li>');
+						$('#exercises').append('<li class="arrow"><a href="#rep" data-identifier="' + row.id + '" title="' + row.info + '">' + row.name + '</a></li>');
 					}
 				);
 			}, errorHandler);
@@ -344,15 +352,27 @@ $(document).ready(function(e){
 	$('#ex li a').livequery(clickEvent, function(event, info){
 		console.log('exercise was clicked');
 		
-		// get the ID of the exercise from the 'title' attribute of the exercise tapped
-		var exercise_id = $(this).attr('title');
+		$('.info p').empty();		
+		
+		// get the ID of the exercise from the 'data-identifier' attribute of the exercise tapped
+		var exercise_id 	= $(this).attr('data-identifier');
+		
+		// get the set info of the exercise from the 'title' attribute of the exercise tapped
+		var exercise_info = $(this).attr('title');
+		
 		// append a hidden input with this ID to the form, so when it's submitted we know
 		// which exercise to add the set to
 		$('#ex_id').val(exercise_id);
+		$('.info p').append('<p>' + exercise_info + '</p>');
 		console.log('getting ready for exercise id: ' + exercise_id);
 	});
 	
+	// bind the form to save the exercise
+	var form = $("#set_form");
 	
+	// setting rep inputs outside of functions, since more than one is referencing 'em			
+	var weightInput	= form.find("input.weight")
+	var repInput		= form.find("input.reps")
 	
 	// sliding set list in
 	$('#rep').bind('pageAnimationStart', function(event, info){
@@ -361,8 +381,11 @@ $(document).ready(function(e){
 			console.log('sliding set recorder in');
 			
 			// resetting inputs, since the user had to click back to get here
-			form.find("input.reps").val("");
-		 	form.find("input.weight").val("");
+			weightInput.val("");
+		 	repInput.val("");
+		
+			// putting focus on weight, since this is the first time it's loaded
+			weightInput.focus();
 		 	
 			// setting exercise id to refresh sets for
 			var exercise_id = $('#ex_id').val();
@@ -371,11 +394,20 @@ $(document).ready(function(e){
 			getSets(refreshSets, exercise_id);
 		}
 	});
+	
+	
+	// FIXME
+	// if a particular rep item is swiped
+	$('#sets li a').live('swipe', function(event, data) {
+		
+		console.log('item was swiped');
+		alert('item was swiped');
+		$(this + ' small').toggleClass('delete-button'); 
+    
+	});
 
-
-
-	// bind the form to save the exercise
-	var form = $("#set_form");
+	
+	
 	
 	// when form is submitted
   form.submit(function(event){
@@ -386,8 +418,8 @@ $(document).ready(function(e){
 		
 		// setting variables to be inserted
 		var exercise_id = $('#ex_id').val();
-		var weight = form.find("input.weight").val();
-		var reps = form.find("input.reps").val();
+		var weight = weightInput.val();
+		var reps = repInput.val();
 			
 		// validation checks
 		// testing if numbers were entered in weight/reps
@@ -400,7 +432,10 @@ $(document).ready(function(e){
 				console.log('saving exercise id: ' + exercise_id + ' / weight: ' + weight + ' / reps: ' + reps );
 				
 				// reset the rep input only (typical for gym)
-			 	form.find("input.reps").val("");
+			 	repInput.val("");
+			
+				// putting focus on rep input, since weight will probably stay the same
+				repInput.focus();
 
 				// refresh the exercise list
 				getSets(refreshSets, exercise_id);
