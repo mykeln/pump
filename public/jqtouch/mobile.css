@@ -9,3 +9,7 @@ ul li input[type="number"] {
     width: 100%;
     -webkit-appearance: textarea;
 }
+
+ul li a.delete {
+	color: red;
+}
