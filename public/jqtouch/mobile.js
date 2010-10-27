@@ -524,6 +524,10 @@ $(document).ready(function(e){
 	
 	$('.leftButton').livequery(clickEvent, function(event, info){
 		console.log('export was clicked');
+		
+		$('.info p').append("<p>Type an email address to send today's workout.</p>");
+		
+		
 	});
 	
 	// bind the form to export today's exercises
