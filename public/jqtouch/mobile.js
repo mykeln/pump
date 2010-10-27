@@ -140,7 +140,6 @@ if (!(dataLoad)){
 	});
 
 	// setting data loaded to true
-	// FIXME: put this in the 'success' area of the function
 	localStorage.setItem('data', true);
 
 }
@@ -296,6 +295,17 @@ $(document).ready(function(e){
 		});
 	}
 	
+	// when workouts list slides back in in
+	$('#ex').bind('pageAnimationStart', function(event, info){
+		if (info.direction == 'in'){
+  		console.log('sliding workouts in');
+			
+			// set the info item back to the generic one
+			$('.info p').empty();
+			$('.info p').append('<p>Tap a workout to see exercises.</p>');
+		}
+  });
+	
 	
 	
 	// when a single workout is clicked
@@ -347,8 +357,6 @@ $(document).ready(function(e){
 	
 	
 	// when a single exercise is clicked
-	// FIXME: this is working properly for hardcoded exercise items, but not for ajaxed ones
-	// (it's not registering a click event for some reason.)
 	$('#ex li a').livequery(clickEvent, function(event, info){
 		console.log('exercise was clicked');
 		
@@ -368,11 +376,11 @@ $(document).ready(function(e){
 	});
 	
 	// bind the form to save the exercise
-	var form = $("#set_form");
+	var set_form = $("#set_form");
 	
 	// setting rep inputs outside of functions, since more than one is referencing 'em			
-	var weightInput	= form.find("input.weight")
-	var repInput		= form.find("input.reps")
+	var weightInput	= set_form.find("input.weight")
+	var repInput		= set_form.find("input.reps")
 	
 	// sliding set list in
 	$('#rep').bind('pageAnimationStart', function(event, info){
@@ -393,7 +401,7 @@ $(document).ready(function(e){
 	});
 	
 	
-	// FIXME
+	// FIXME: add delete functionality
 	// if a particular rep item is swiped
 	$('#sets li a').live('swipe', function(event, data) {
 		
@@ -407,7 +415,7 @@ $(document).ready(function(e){
 	
 	
 	// when form is submitted
-  form.submit(function(event){
+  set_form.submit(function(event){
  		// prevent the default submit
 		event.preventDefault();
 		
@@ -442,4 +450,114 @@ $(document).ready(function(e){
 			alert("You're missing a value, or entered a non-number.")
 		}
 	});
+	
+	
+	
+	
+	// when export is clicked
+	$('#export').bind('pageAnimationStart', function(event, info){
+		if (info.direction == 'in'){
+				
+			console.log('flipping export pane in');
+			
+			$('#em_sets').empty();
+			
+			// setting a standard date for the set recorded
+			var myDate = new Date();
+			var em_date = (myDate.getMonth()+1) + '/' + myDate.getDate() + '/' + myDate.getFullYear();
+			
+			console.log('displaying sets for: ' + em_date);
+			
+			database.transaction(function(transaction){
+				transaction.executeSql('SELECT * FROM pump WHERE rep_date LIKE "%' + em_date + '%";',	[],
+				function (transaction, results) {
+
+					// FIXME: get name of exercise
+					// SELECT exercise.id, exercise.name FROM exercise INNER JOIN pump ON exercise.id=pump.ex_id WHERE ex_id=row.ex_id
+
+					var mailto_link = "";
+					
+					$.each(
+						results.rows,
+						function(rowIndex) {
+							var row = results.rows.item(rowIndex);
+							
+							var em_content = 'Exercise ID: ' + row.ex_id + ' - ' + row.reps + ' reps of ' + row.weight + ' lbs';
+							
+							// showing the user which sets are going to be emailed
+							$('#em_sets').append('<li>' + em_content + '</li>');
+							
+							// creating the email link that contains the data
+							mailto_link += em_content + '\n';
+							
+
+						}
+					);
+					
+					// adding the custom mail link to the submit button
+					$('#em_submit').attr('href', 'mailto:myke@localist.com&subject=\'' + mailto_link + '\'');
+					
+				}, errorHandler);
+
+				
+			});
+		
+			
+			// find sets with the em_date			
+			database.transaction(function(transaction){
+				transaction.executeSql('SELECT * FROM pump WHERE rep_date LIKE "%' + em_date + '%";',	[],
+				function (transaction, results) {
+					console.log('displaying sets for: ' + em_date);
+
+					$.each(
+						results.rows,
+						function(rowIndex) {
+							var row = results.rows.item(rowIndex);
+							$('#em_sets').append('<li>Exercise ID: ' + row.ex_id + ' - ' + row.reps + ' reps of ' + row.weight + ' lbs</li>');
+						}
+					);
+				}, errorHandler);
+			});
+	
+		}
+	});
+	
+	$('.leftButton').livequery(clickEvent, function(event, info){
+		console.log('export was clicked');
+	});
+	
+	// bind the form to export today's exercises
+	var export_form = $("#export_form");
+	
+	export_form.submit(function(event){
+		
+		// setting email input
+		var emailInput = export_form.find("input.email")
+		var email = emailInput.val();
+		
+		console.log('form was submitted! attempting to export...');
+			
+		// validation checks
+		// testing if numbers were entered in weight/reps
+		var emailRegex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+		// if email validation checks out, send the email
+    if(email.length > 0 && emailRegex.test(email)){    
+			console.log('sending mail to: ' + email);
+
+
+
+				
+			// reset the rep input only (typical for gym)
+		 	emailInput.val("");
+
+
+		} else {
+			console.log('whoops, something is wrong with what the user input');
+			alert("Email address isn't in the correct format.")
+		}
+	});
+	
+  
+	
 }); // end jQuery function();

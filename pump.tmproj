@@ -79,6 +79,29 @@
 									<key>subItems</key>
 									<dict/>
 								</dict>
+								<key>themes</key>
+								<dict>
+									<key>isExpanded</key>
+									<true/>
+									<key>subItems</key>
+									<dict>
+										<key>pump</key>
+										<dict>
+											<key>isExpanded</key>
+											<true/>
+											<key>subItems</key>
+											<dict>
+												<key>img</key>
+												<dict>
+													<key>isExpanded</key>
+													<true/>
+													<key>subItems</key>
+													<dict/>
+												</dict>
+											</dict>
+										</dict>
+									</dict>
+								</dict>
 							</dict>
 						</dict>
 					</dict>
@@ -87,6 +110,6 @@
 		</dict>
 	</dict>
 	<key>windowFrame</key>
-	<string>{{0, 48}, {1920, 1130}}</string>
+	<string>{{539, 93}, {941, 627}}</string>
 </dict>
 </plist>
