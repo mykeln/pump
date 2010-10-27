@@ -10,12 +10,12 @@ var jQT = new $.jQTouch({
   statusBar:'black-translucent',
 	touchSelector: '#sets li a',
   preloadImages:[
-    '/jqtouch/themes/pump/img/back_button.png',
-    '/jqtouch/themes/pump/img/back_button_clicked.png',
-    '/jqtouch/themes/pump/img/button_clicked.png',
-    '/jqtouch/themes/pump/img/grayButton.png',
-    '/jqtouch/themes/pump/img/whiteButton.png',
-    '/jqtouch/themes/pump/img/loading.gif'
+    './jqtouch/themes/pump/img/back_button.png',
+    './jqtouch/themes/pump/img/back_button_clicked.png',
+    './jqtouch/themes/pump/img/button_clicked.png',
+    './jqtouch/themes/pump/img/grayButton.png',
+    './jqtouch/themes/pump/img/whiteButton.png',
+    './jqtouch/themes/pump/img/loading.gif'
   ]
 });
 
@@ -93,7 +93,7 @@ if (!(dataLoad)){
 	}, errorHandler);
 	
 	// grab seed data from a json file
-	$.getJSON("/pump_seed.js", function(data){
+	$.getJSON("./pump_seed.js", function(data){
 		$.each(data.workouts, function(i,item){
 			// for each of the workouts found, assign them to variables
 			var workoutImportName	= item.name;
