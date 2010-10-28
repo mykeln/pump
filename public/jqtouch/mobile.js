@@ -473,7 +473,7 @@ $(document).ready(function(e){
 	
 	
 	// setting em_content out here since submission uses it, too
-	var em_content = "";	
+	var em_content = null;	
 	var em_date = null;
 	
 	
