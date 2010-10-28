@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>currentDocument</key>
+	<string>public/jqtouch/mobile.js</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -19,19 +21,19 @@
 	<integer>239</integer>
 	<key>metaData</key>
 	<dict>
-		<key>app.rb</key>
+		<key>public/jqtouch/mobile.js</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>3</integer>
+				<integer>2</integer>
 				<key>line</key>
-				<integer>5</integer>
+				<integer>361</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>274</integer>
 		</dict>
 		<key>public/pump_logo.png</key>
 		<dict>
@@ -48,6 +50,10 @@
 			<integer>0</integer>
 		</dict>
 	</dict>
+	<key>openDocuments</key>
+	<array>
+		<string>public/jqtouch/mobile.js</string>
+	</array>
 	<key>showFileHierarchyDrawer</key>
 	<false/>
 	<key>showFileHierarchyPanel</key>
@@ -79,29 +85,6 @@
 									<key>subItems</key>
 									<dict/>
 								</dict>
-								<key>themes</key>
-								<dict>
-									<key>isExpanded</key>
-									<true/>
-									<key>subItems</key>
-									<dict>
-										<key>pump</key>
-										<dict>
-											<key>isExpanded</key>
-											<true/>
-											<key>subItems</key>
-											<dict>
-												<key>img</key>
-												<dict>
-													<key>isExpanded</key>
-													<true/>
-													<key>subItems</key>
-													<dict/>
-												</dict>
-											</dict>
-										</dict>
-									</dict>
-								</dict>
 							</dict>
 						</dict>
 					</dict>
@@ -110,6 +93,6 @@
 		</dict>
 	</dict>
 	<key>windowFrame</key>
-	<string>{{539, 93}, {941, 627}}</string>
+	<string>{{376, 48}, {1510, 802}}</string>
 </dict>
 </plist>

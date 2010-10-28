@@ -220,22 +220,10 @@ var refreshSets = function(results) {
 	  function(rowIndex) {
 			var row = results.rows.item(rowIndex);
 			// append the list item.
-			$('#sets').prepend("<li><a href='#'>" + row.reps + " reps of " + row.weight + " lbs</a><small><a href='#' class='delete-button'>Delete</a></li>");
+			$('#sets').prepend("<li><a href='#' data-identifier='" + row.id + "'>" + row.reps + " reps of " + row.weight + " lbs</a></li>");
 			}
 	  );
 	}
-};
-
-// delete all sets in an exercise
-var deleteSets = function(callback) {
-	database.transaction(
-		function(transaction) {
-			transaction.executeSql('DELETE FROM pump;', [], 
-			function() {
-				callback();
-			}, errorHandler);
-		}
-	);
 };
 
 
@@ -375,12 +363,16 @@ $(document).ready(function(e){
 		console.log('getting ready for exercise id: ' + exercise_id);
 	});
 	
+	
+	
 	// bind the form to save the exercise
 	var set_form = $("#set_form");
 	
 	// setting rep inputs outside of functions, since more than one is referencing 'em			
 	var weightInput	= set_form.find("input.weight")
 	var repInput		= set_form.find("input.reps")
+	
+	
 	
 	// sliding set list in
 	$('#rep').bind('pageAnimationStart', function(event, info){
@@ -400,18 +392,33 @@ $(document).ready(function(e){
 		}
 	});
 	
-	
-	// FIXME: add delete functionality
-	// if a particular rep item is swiped
-	$('#sets li a').live('swipe', function(event, data) {
-		
-		console.log('item was swiped');
-		alert('item was swiped');
-		$(this + ' small').toggleClass('delete-button'); 
-    
-	});
 
 	
+	// if a particular rep item is swiped
+	$('#sets li a').live('swipe', function(event, data) {
+		console.log('rep was swiped');
+				
+		var delete_check = confirm('Are you sure you want to delete this?');
+
+		if (delete_check){
+			console.log('deleting rep' + rep_info);
+			// setting exercise id to refresh sets for
+			var exercise_id = $('#ex_id').val();
+			var rep_info = $(this).attr('data-identifier');
+
+			database.transaction(
+				function(transaction) {
+					transaction.executeSql('DELETE FROM pump WHERE id=' + rep_info + ';', [], 
+					function() {
+						// refresh the exercise list
+						getSets(refreshSets, exercise_id);
+					}, errorHandler);
+				}
+			);
+		}
+	});
+
+
 	
 	
 	// when form is submitted
@@ -474,9 +481,7 @@ $(document).ready(function(e){
 
 					// FIXME: get name of exercise
 					// SELECT exercise.id, exercise.name FROM exercise INNER JOIN pump ON exercise.id=pump.ex_id WHERE ex_id=row.ex_id
-
-					var mailto_link = "";
-					
+			
 					$.each(
 						results.rows,
 						function(rowIndex) {
@@ -486,16 +491,9 @@ $(document).ready(function(e){
 							
 							// showing the user which sets are going to be emailed
 							$('#em_sets').append('<li>' + em_content + '</li>');
-							
-							// creating the email link that contains the data
-							mailto_link += em_content + '\n';
-							
-
+						
 						}
 					);
-					
-					// adding the custom mail link to the submit button
-					$('#em_submit').attr('href', 'mailto:myke@localist.com&subject=\'' + mailto_link + '\'');
 					
 				}, errorHandler);
 
@@ -525,6 +523,7 @@ $(document).ready(function(e){
 	$('.leftButton').livequery(clickEvent, function(event, info){
 		console.log('export was clicked');
 		
+		$('.info p').empty();
 		$('.info p').append("<p>Type an email address to send today's workout.</p>");
 		
 		
@@ -549,6 +548,17 @@ $(document).ready(function(e){
     if(email.length > 0 && emailRegex.test(email)){    
 			console.log('sending mail to: ' + email);
 
+					var mailto_link = "";
+					
+					// creating the email link that contains the data
+					mailto_link += em_content + '\n';
+					
+			
+			
+			// adding the custom mail link to the submit button
+			$('#em_submit').attr('href', 'mailto:myke@localist.com&subject=\'' + mailto_link + '\'');
+
+			window.location.href = mailto_link;
 
 
 				
