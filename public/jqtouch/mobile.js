@@ -460,66 +460,7 @@ $(document).ready(function(e){
 	
 	
 	
-	
-	// when export is clicked
-	$('#export').bind('pageAnimationStart', function(event, info){
-		if (info.direction == 'in'){
-				
-			console.log('flipping export pane in');
-			
-			$('#em_sets').empty();
-			
-			// setting a standard date for the set recorded
-			var myDate = new Date();
-			var em_date = (myDate.getMonth()+1) + '/' + myDate.getDate() + '/' + myDate.getFullYear();
-			
-			console.log('displaying sets for: ' + em_date);
-			
-			database.transaction(function(transaction){
-				transaction.executeSql('SELECT * FROM pump WHERE rep_date LIKE "%' + em_date + '%";',	[],
-				function (transaction, results) {
-
-					// FIXME: get name of exercise
-					// SELECT exercise.id, exercise.name FROM exercise INNER JOIN pump ON exercise.id=pump.ex_id WHERE ex_id=row.ex_id
-			
-					$.each(
-						results.rows,
-						function(rowIndex) {
-							var row = results.rows.item(rowIndex);
-							
-							var em_content = 'Exercise ID: ' + row.ex_id + ' - ' + row.reps + ' reps of ' + row.weight + ' lbs';
-							
-							// showing the user which sets are going to be emailed
-							$('#em_sets').append('<li>' + em_content + '</li>');
-						
-						}
-					);
-					
-				}, errorHandler);
-
-				
-			});
-		
-			
-			// find sets with the em_date			
-			database.transaction(function(transaction){
-				transaction.executeSql('SELECT * FROM pump WHERE rep_date LIKE "%' + em_date + '%";',	[],
-				function (transaction, results) {
-					console.log('displaying sets for: ' + em_date);
-
-					$.each(
-						results.rows,
-						function(rowIndex) {
-							var row = results.rows.item(rowIndex);
-							$('#em_sets').append('<li>Exercise ID: ' + row.ex_id + ' - ' + row.reps + ' reps of ' + row.weight + ' lbs</li>');
-						}
-					);
-				}, errorHandler);
-			});
-	
-		}
-	});
-	
+	// if export button was clicked
 	$('.leftButton').livequery(clickEvent, function(event, info){
 		console.log('export was clicked');
 		
@@ -529,41 +470,88 @@ $(document).ready(function(e){
 		
 	});
 	
+	
+	
+	// setting em_content out here since submission uses it, too
+	var em_content = "";	
+	var em_date = null;
+	
+	
+	// flipping export pane in
+	$('#export').bind('pageAnimationStart', function(event, info){
+		if (info.direction == 'in'){
+				
+			console.log('flipping export pane in');
+			
+			$('#em_sets').empty();
+			
+			// setting a standard date for the set recorded
+			var myDate = new Date();
+			em_date = (myDate.getMonth()+1) + '/' + myDate.getDate() + '/' + myDate.getFullYear();
+			
+			console.log('displaying sets for: ' + em_date);
+			
+			database.transaction(function(transaction){
+				transaction.executeSql('SELECT * FROM pump WHERE rep_date LIKE "%' + em_date + '%";',	[],
+				function (transaction, results) {
+
+					// FIXME: get name of exercise
+					// SELECT exercise.id, exercise.name FROM exercise INNER JOIN pump ON exercise.id=pump.ex_id WHERE ex_id=row.ex_id
+					// showing the user the exercises that are going to be exported
+					$.each(
+						results.rows,
+						function(rowIndex) {
+							var row = results.rows.item(rowIndex);
+							
+							// setting contents of reps (used in displaying)
+							rep_content = row.ex_id + ' / ' + row.reps + ' reps of ' + row.weight + ' lbs';
+							
+							// setting contents of reps (used in emailing)
+							em_content += row.ex_id + ' / ' + row.reps + ' reps of ' + row.weight + ' lbs<br />';
+							
+							
+							// showing the user which sets are going to be emailed
+							$('#em_sets').append('<li>' + rep_content + '</li>');
+						
+						}
+					);
+				}, errorHandler);
+			});	
+		}
+	});
+	
+
+
+	
 	// bind the form to export today's exercises
 	var export_form = $("#export_form");
 	
+	// if export form is submitted
 	export_form.submit(function(event){
 		
+		event.preventDefault();
+		
 		// setting email input
-		var emailInput = export_form.find("input.email")
+		var emailInput = export_form.find("input.email");
+		
+		// getting the value of the email input
 		var email = emailInput.val();
 		
 		console.log('form was submitted! attempting to export...');
 			
 		// validation checks
-		// testing if numbers were entered in weight/reps
+		// testing if email address was entered appropriately
 		var emailRegex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 
 		// if email validation checks out, send the email
     if(email.length > 0 && emailRegex.test(email)){    
 			console.log('sending mail to: ' + email);
-
-					var mailto_link = "";
-					
-					// creating the email link that contains the data
-					mailto_link += em_content + '\n';
-					
 			
-			
-			// adding the custom mail link to the submit button
-			$('#em_submit').attr('href', 'mailto:myke@localist.com&subject=\'' + mailto_link + '\'');
+			// creating the email url that also contains the data
+			to_email = "mailto:" + email + "?subject=" + em_date + " workout&body=" + em_content;
 
-			window.location.href = mailto_link;
-
-
-				
-			// reset the rep input only (typical for gym)
-		 	emailInput.val("");
+			// redirecting user to the email link
+			window.location.href = to_email;
 
 
 		} else {
