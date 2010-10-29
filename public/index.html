@@ -26,6 +26,7 @@
     <div class="toolbar">
       <a href="#export" class="button flip leftButton" id="exportButton">Export</a>
       <h1><img src="./pump_logo.png"></h1>
+      <a href="#add_workout" class="button slideup" id="addWorkoutButton">+</a>
     </div>
     
     <div class="info">
@@ -75,10 +76,10 @@
     </ul>
   </div>
   
-  <div id="export" class="selectable">
+  <div id="export">
     <div class="toolbar">
       <a class="back" href="#">Back</a>
-      <h1>Export Workout Data</h1>
+      <h1>Export</h1>
     </div>
     <div class="info">
       <p></p>
@@ -94,7 +95,26 @@
     <h2>Sending Sets</h2>
     <ul id="em_sets">
       <li>None</li>
-    </ul>  </div>
+    </ul>
+  </div>
+  
+  <div id="add_workout">
+    <div class="toolbar">
+      <a class="cancel" href="#">Cancel</a>
+      <h1>Add Workout</h1>
+    </div>
+    <div class="info">
+      <p></p>
+    </div>
+    <form id="workout_form" action="" method="post" accept-charset="utf-8">
+      <ul class="rounded">
+        <li>
+          <input type="text" name="workout_name" class="workout_name" placeholder="Workout Name">
+        </li>
+      </ul>
+      <a href="#" id="workout_submit" class="grayButton submit">Create Workout</a>
+    </form>
+  </div>
 
   
 </body>

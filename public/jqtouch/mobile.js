@@ -167,6 +167,20 @@ function errorHandler(transaction, error)
 // SERVICE FUNCTIONS ///////////////
 ////////////////////////////////////
 
+// save a new workout
+var saveWorkout = function(workout,callback) {
+	// needs workout passed to it so it knows what to name the workout
+	
+	// insert set into the database
+	database.transaction(function(transaction){
+		transaction.executeSql('INSERT INTO workout (name) VALUES (?);',
+		[ workout ],
+		function (transaction, results) {
+    	callback(results.insertId);
+    }, errorHandler);
+	});
+};
+
 // save a set for a specific exercise
 var saveSet = function(ex_id, weight, reps, callback) {
 	// needs ex_id passed to it so it knows which exercise to assign the set to
@@ -293,6 +307,31 @@ $(document).ready(function(e){
 			$('.info p').append('<p>Tap a workout to see exercises.</p>');
 		}
   });
+
+
+
+	// if a particular workout item is swiped
+	$('#ex li a').live('swipe', function(event, data) {
+		console.log('workout was swiped');
+				
+		var delete_check = confirm('Are you sure you want to delete this?');
+
+		if (delete_check){
+			console.log('deleting workout' + rep_info);
+			// setting workout id to delete for
+			var workout_id = $(this).attr('data-identifier');
+
+			database.transaction(
+				function(transaction) {
+					transaction.executeSql('DELETE FROM workout WHERE id=' + workout_id + ';', [], 
+					function() {
+						// refresh the exercise list
+						// need a refresh workouts callback getSets(refreshSets, exercise_id);
+					}, errorHandler);
+				}
+			);
+		}
+	});
 	
 	
 	
@@ -463,19 +502,15 @@ $(document).ready(function(e){
 	// if export button was clicked
 	$('.leftButton').livequery(clickEvent, function(event, info){
 		console.log('export was clicked');
-		
 		$('.info p').empty();
 		$('.info p').append("<p>Type an email address to send today's workout.</p>");
-		
-		
 	});
 	
 	
 	
 	// setting em_content out here since submission uses it, too
-	var em_content = null;	
-	var em_date = null;
-	
+	var em_content = "";	
+	var em_date = "";
 	
 	// flipping export pane in
 	$('#export').bind('pageAnimationStart', function(event, info){
@@ -492,11 +527,9 @@ $(document).ready(function(e){
 			console.log('displaying sets for: ' + em_date);
 			
 			database.transaction(function(transaction){
-				transaction.executeSql('SELECT * FROM pump WHERE rep_date LIKE "%' + em_date + '%";',	[],
+				transaction.executeSql('SELECT pump.ex_id, pump.reps, pump.weight, exercise.name FROM pump,exercise WHERE exercise.id=pump.ex_id AND pump.rep_date LIKE "%' + em_date + '%";',	[],
 				function (transaction, results) {
-
 					// FIXME: get name of exercise
-					// SELECT exercise.id, exercise.name FROM exercise INNER JOIN pump ON exercise.id=pump.ex_id WHERE ex_id=row.ex_id
 					// showing the user the exercises that are going to be exported
 					$.each(
 						results.rows,
@@ -504,10 +537,10 @@ $(document).ready(function(e){
 							var row = results.rows.item(rowIndex);
 							
 							// setting contents of reps (used in displaying)
-							rep_content = row.ex_id + ' / ' + row.reps + ' reps of ' + row.weight + ' lbs';
+							rep_content = row.name + ' / ' + row.reps + ' reps of ' + row.weight + ' lbs';
 							
 							// setting contents of reps (used in emailing)
-							em_content += row.ex_id + ' / ' + row.reps + ' reps of ' + row.weight + ' lbs<br />';
+							em_content += row.name + ' / ' + row.reps + ' reps of ' + row.weight + ' lbs<br />';
 							
 							
 							// showing the user which sets are going to be emailed
@@ -531,20 +564,21 @@ $(document).ready(function(e){
 		
 		event.preventDefault();
 		
+		console.log('form was submitted! attempting to export...');
+		
 		// setting email input
 		var emailInput = export_form.find("input.email");
 		
 		// getting the value of the email input
 		var email = emailInput.val();
 		
-		console.log('form was submitted! attempting to export...');
-			
 		// validation checks
 		// testing if email address was entered appropriately
 		var emailRegex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 
 		// if email validation checks out, send the email
-    if(email.length > 0 && emailRegex.test(email)){    
+    if(email.length > 0 && emailRegex.test(email)){
+			
 			console.log('sending mail to: ' + email);
 			
 			// creating the email url that also contains the data
@@ -558,6 +592,44 @@ $(document).ready(function(e){
 			console.log('whoops, something is wrong with what the user input');
 			alert("Email address isn't in the correct format.")
 		}
+	});
+	
+	
+	
+	// bind the form to add a workout
+	var workout_form = $("#workout_form");
+	
+	// if workout form is submitted
+	workout_form.submit(function(event){
+		
+		event.preventDefault();
+		
+		console.log('form was submitted! attempting to create the workout');
+				
+		// getting the workout input
+		var workoutInput = workout_form.find("input.workout_name");
+		
+		// getting the value of the workout input
+		var workout = workoutInput.val();
+		
+		
+		if(workout.length > 0){
+			// save the workout
+			saveWorkout(workout,function(){
+				
+				console.log('saving workout:' + workout);
+				
+				// reset the workout input
+			 	workoutInput.val("");
+
+			});
+			
+		} else {
+			console.log('whoops, something is wrong with what the user input');
+			alert("Type a workout name, please.");
+		}    
+    
+		
 	});
 	
   
