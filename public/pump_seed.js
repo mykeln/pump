@@ -37,12 +37,12 @@
 	{
 	"name" : "Back Extensions",
 	"info" : "2 sets until failure.",
-  "workouts" : "1, 2, 3"
+  "workouts" : "1,2,3"
 	},
 	{
 	"name" : "Calf Raises",
 	"info" : "3 sets of 50 @ 100 lbs.",
-  "workouts" : "1, 2, 3, 5"
+  "workouts" : "1,2,3,5"
 	},
 	{
 	"name" : "Squats",
@@ -57,17 +57,17 @@
 	{
 	"name" : "Pull Ups",
 	"info" : "2 sets until failure.",
-  "workouts" : "1, 2, 3, 8"
+  "workouts" : "1,2,3,8"
 	},
 	{
 	"name" : "Goblet Squats",
 	"info" : "3 sets of 50 @ 20 lbs.",
-  "workouts" : "1, 2, 3"
+  "workouts" : "1,2,3"
 	},
 	{
 	"name" : "Seated Rows",
 	"info" : "2 sets of 25 @ 30 lbs.",
-  "workouts" : "1, 2, 3, 8"
+  "workouts" : "1,2,3,8"
 	},
 	{
 	"name" : "Pullovers",
@@ -77,12 +77,12 @@
 	{
 	"name" : "Lunges",
 	"info" : "3 sets of 50 @ 20 lbs.",
-  "workouts" : "1, 2, 3"
+  "workouts" : "1,2,3"
 	},
 	{
 	"name" : "Flat DB Flys",
 	"info" : "3 sets of 5 @ 25 lbs.",
-  "workouts" : "1, 2, 3, 7"
+  "workouts" : "1,2,3,7"
 	},
 	{
 	"name" : "Dips",
@@ -112,22 +112,22 @@
 	{
 	"name" : "Incline DB Presses",
 	"info" : "3 sets of 5 @ 40 lbs.",
-  "workouts" : "1, 2, 3, 7"
+  "workouts" : "1,2,3,7"
 	},
 	{
 	"name" : "Lateral Shoulder Raises",
 	"info" : "3 sets of 5 @ 15 lbs.",
-  "workouts" : "1, 2, 3"
+  "workouts" : "1,2,3"
 	},
 	{
 	"name" : "Bicep DB Curls",
 	"info" : "3 sets of 5 @ 30 lbs.",
-  "workouts" : "1, 2, 3"
+  "workouts" : "1,2,3"
 	},
 	{
 	"name" : "Rope Tricep Pulldowns",
 	"info" : "3 sets of 5 @ 30 lbs.",
-  "workouts" : "1, 2, 3"
+  "workouts" : "1,2,3"
 	},
 	{
 	"name" : "Seated Military DB Press",
@@ -157,7 +157,7 @@
 	{
 	"name" : "Sit Ups",
 	"info" : "3 sets until failure.",
-	"workouts" : "1, 2, 3"
+	"workouts" : "1,2,3"
   }
 	]
 }

@@ -43,6 +43,8 @@
     <div class="toolbar">
       <a class="back" href="#">Back</a>
       <h1>Workout</h1>
+      <a href="#add_exercise" class="button slideup" id="addExerciseButton">+</a>
+      
     </div>
     <ul id="exercises" class="plastic">
       <!-- dynamically filled with exercises -->
@@ -113,6 +115,26 @@
         </li>
       </ul>
       <a href="#" id="workout_submit" class="grayButton submit">Create Workout</a>
+    </form>
+  </div>
+  
+  <div id="add_exercise">
+    <div class="toolbar">
+      <a class="cancel" href="#">Cancel</a>
+      <h1>Add Exercise</h1>
+    </div>
+    <div class="info">
+      <p></p>
+    </div>
+    <form id="exercise_form" action="" method="post" accept-charset="utf-8">
+      <ul class="rounded">
+        <li>
+          <input type="text" name="exercise_name" class="exercise_name" placeholder="Exercise Name">    
+        </li>
+        <li><input type="text" name="exercise_info" class="exercise_info" placeholder="Exercise Info">
+        </li>
+      </ul>
+      <a href="#" id="exercise_submit" class="grayButton submit">Create Exercise</a>
     </form>
   </div>
 

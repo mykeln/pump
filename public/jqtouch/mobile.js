@@ -73,8 +73,8 @@ if (!(dataLoad)){
 		transaction.executeSql(
 			"CREATE TABLE IF NOT EXISTS relationship (" +
 			"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
-			"workout_id TEXT NOT NULL," +
-			"exercise_id INT NOT NULL" +
+			"workout_id INTEGER NOT NULL," +
+			"exercise_id INTEGER NOT NULL" +
 			");"
 		);
 
@@ -91,7 +91,8 @@ if (!(dataLoad)){
 			");"
 		);
 	}, errorHandler);
-	
+
+	/*
 	// grab seed data from a json file
 	$.getJSON("./pump_seed.js", function(data){
 		$.each(data.workouts, function(i,item){
@@ -138,6 +139,7 @@ if (!(dataLoad)){
 			});
 		});
 	});
+	*/
 
 	// setting data loaded to true
 	localStorage.setItem('data', true);
@@ -180,6 +182,21 @@ var saveWorkout = function(workout,callback) {
     }, errorHandler);
 	});
 };
+
+// save a new exercise
+var saveExercise = function(exercise,exercise_info,callback) {
+	// needs workout passed to it so it knows what to name the workout
+	
+	// insert set into the database
+	database.transaction(function(transaction){
+		transaction.executeSql('INSERT INTO exercise (name,info) VALUES (?,?);',
+		[ exercise,exercise_info ],
+		function (transaction, results) {
+    	callback(results.insertId);
+    }, errorHandler);
+	});
+};
+
 
 // save a set for a specific exercise
 var saveSet = function(ex_id, weight, reps, callback) {
@@ -266,9 +283,6 @@ $(document).ready(function(e){
 	console.log('User is: ' + userAgent + ', so I will treat all interactions as ' + clickEvent + 's');
 	
 	
-/////////////////////////////////////////////
-/////////////////////////////////////////////
-	
 	// when the workouts div exists in the DOM
 	if ($('#workouts').length) {  
 		// showing initial workout list
@@ -279,7 +293,7 @@ $(document).ready(function(e){
 
 		// when a single workout is clicked, load the exercises for that workout
 		database.transaction(function(transaction) {
-			transaction.executeSql('SELECT workout.id,workout.name,workout.type FROM workout;', [],
+			transaction.executeSql('SELECT workout.id,workout.name,workout.type FROM workout ORDER BY workout.name ASC;', [],
 			function (transaction, results) {
 				console.log('rendering workouts');
 				
@@ -297,29 +311,20 @@ $(document).ready(function(e){
 		});
 	}
 	
-	// when workouts list slides back in in
-	$('#ex').bind('pageAnimationStart', function(event, info){
-		if (info.direction == 'in'){
-  		console.log('sliding workouts in');
-			
-			// set the info item back to the generic one
-			$('.info p').empty();
-			$('.info p').append('<p>Tap a workout to see exercises.</p>');
-		}
-  });
-
-
-
+	
 	// if a particular workout item is swiped
-	$('#ex li a').live('swipe', function(event, data) {
+	$('#workouts li a').live('swipe', function(event, data) {
+		
 		console.log('workout was swiped');
 				
 		var delete_check = confirm('Are you sure you want to delete this?');
 
 		if (delete_check){
-			console.log('deleting workout' + rep_info);
 			// setting workout id to delete for
 			var workout_id = $(this).attr('data-identifier');
+
+			console.log('deleting workout:' + workout_id);
+
 
 			database.transaction(
 				function(transaction) {
@@ -333,8 +338,7 @@ $(document).ready(function(e){
 		}
 	});
 	
-	
-	
+
 	// when a single workout is clicked
 	$('#workouts li a').livequery(clickEvent, function(event, info){
 		
@@ -354,7 +358,7 @@ $(document).ready(function(e){
 		
 		// load the exercises for that workout
 		database.transaction(function(transaction) {
-			transaction.executeSql('SELECT exercise.id,exercise.name,exercise.info FROM exercise INNER JOIN relationship ON exercise.id=relationship.exercise_id WHERE workout_id="' + workout_id + '";', [],
+			transaction.executeSql('SELECT exercise.id, exercise.name, exercise.info from exercise WHERE exercise.id IN (select exercise_id from relationship where workout_id=' + workout_id + ');', [],
 			function (transaction, results) {
 				console.log('rendering exercises');
 				
@@ -372,6 +376,16 @@ $(document).ready(function(e){
 
 	});
 
+	// when workouts list slides back in
+	$('#ex').bind('pageAnimationStart', function(event, info){
+		if (info.direction == 'in'){
+  		console.log('sliding workouts in');
+			
+			// set the info item back to the generic one
+			$('.info p').empty();
+			$('.info p').append('<p>Tap a workout to see exercises.</p>');
+		}
+  });
 
 
 	// sliding exercise list in
@@ -380,7 +394,32 @@ $(document).ready(function(e){
   		console.log('sliding exercises in');
 		}
   });
-	
+
+	// if a particular exercise item is swiped
+	$('#ex li a').live('swipe', function(event, data) {
+		
+		console.log('exercise was swiped');
+				
+		var delete_check = confirm('Are you sure you want to delete this?');
+
+		if (delete_check){
+			// setting workout id to delete for
+			var exercise_id = $(this).attr('data-identifier');
+
+			console.log('deleting exercise:' + exercise_id);
+
+
+			database.transaction(
+				function(transaction) {
+					transaction.executeSql('DELETE FROM exercise WHERE id=' + exercise_id + ';', [], 
+					function() {
+						// refresh the exercise list
+						// need a refresh exercise callback getSets(refreshSets, exercise_id);
+					}, errorHandler);
+				}
+			);
+		}
+	});
 	
 	
 	// when a single exercise is clicked
@@ -627,6 +666,45 @@ $(document).ready(function(e){
 		} else {
 			console.log('whoops, something is wrong with what the user input');
 			alert("Type a workout name, please.");
+		}    
+    
+		
+	});
+	
+	
+	// bind the form to add a workout
+	var exercise_form = $("#exercise_form");
+	
+	// if workout form is submitted
+	exercise_form.submit(function(event){
+		
+		event.preventDefault();
+		
+		console.log('form was submitted! attempting to create the workout');
+				
+		// getting the workout input
+		var exerciseInput = exercise_form.find("input.exercise_name");
+		var exerciseInfo  = exercise_form.find("input.exercise_info");
+		
+		
+		// getting the value of the workout input
+		var exercise = exerciseInput.val();
+		var exercise_info = exerciseInfo.val();
+		
+		if(exercise.length > 0 && exercise_info.length > 0){
+			// save the exercise
+			saveExercise(exercise,exercise_info,function(){
+				
+				console.log('saving exercise:' + exercise);
+				
+				// reset the workout input
+			 	exerciseInput.val("");
+				exerciseInfo.val("");
+			});
+			
+		} else {
+			console.log('whoops, something is wrong with what the user input');
+			alert("Fill out exercise name and info, please.");
 		}    
     
 		
