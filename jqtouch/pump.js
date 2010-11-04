@@ -3,20 +3,21 @@
 ////////////////////////////////////////////
 
 // setting proprietary jQTouch configurations
-var jQT = new $.jQTouch({
-  icon:'apple-touch-icon.png',
-  addGlossToIcon: false,
-  startupScreen:"apple-touch-startup.png",
-  statusBar:'black-translucent',
-	touchSelector: '#sets li a',
-  preloadImages:[
-    './jqtouch/themes/pump/img/back_button.png',
-    './jqtouch/themes/pump/img/back_button_clicked.png',
-    './jqtouch/themes/pump/img/button_clicked.png',
-    './jqtouch/themes/pump/img/grayButton.png',
-    './jqtouch/themes/pump/img/whiteButton.png',
-    './jqtouch/themes/pump/img/loading.gif'
-  ]
+var jqtouch = $.jQTouch({
+    icon:'apple-touch-icon.png',
+    addGlossToIcon: false,
+    startupScreen:'apple-touch-startup.png',
+    statusBar:'black-translucent',
+    touchSelector: '#sets li a',
+    preloadImages: [
+        'themes/jqt/img/chevron_white.png',
+        'themes/jqt/img/bg_row_select.gif',
+        'themes/jqt/img/back_button.png',
+        'themes/jqt/img/back_button_clicked.png',
+        'themes/jqt/img/button_clicked.png',
+        'themes/jqt/img/grayButton.png',
+        'themes/jqt/img/whiteButton.png'
+        ]
 });
 
 // defining db information
@@ -258,31 +259,26 @@ var refreshSets = function(results) {
 };
 
 
-// convert sentence to lowercase with underscores
-function convertToDynamic(text)
-{
-	return text
-  	.toLowerCase()
-  	.replace(/[^\w ]+/g,'')
-  	.replace(/ +/g,'-')
-  	;
-}
 
 ////////////////////////////////////
 // RENDERING APP ///////////////////
 ////////////////////////////////////
 
-
 // when the DOM is ready, init scripts
-$(document).ready(function(e){
+$(function(){
+  // Dynamically set next page titles after clicking certain links
+  $('#home ul a, #ex ul a, #rep ul a').click(function(){
+      $( $(this).attr('href') + ' h1' ).html($(this).html());
+  });
+
 
 	// setting click event, so behavior is correct when viewing on iphone vs. simulator, or web page
 	var userAgent = navigator.userAgent.toLowerCase();
 	var isiPhone = (userAgent.indexOf('iphone') != -1 || userAgent.indexOf('ipod') != -1) ? true : false;
 	clickEvent = isiPhone ? 'tap' : 'click';
 	console.log('User is: ' + userAgent + ', so I will treat all interactions as ' + clickEvent + 's');
-	
-	
+
+
 	// when the workouts div exists in the DOM
 	if ($('#workouts').length) {  
 		// showing initial workout list
@@ -296,13 +292,27 @@ $(document).ready(function(e){
 			transaction.executeSql('SELECT workout.id,workout.name,workout.type FROM workout ORDER BY workout.name ASC;', [],
 			function (transaction, results) {
 				console.log('rendering workouts');
-				
+
 				$.each(
 					results.rows,
 					function(rowIndex) {
 						var row = results.rows.item(rowIndex);
+
+						var workout_id = row.id;
+
 						// FIXME: count the amount of exercises per workout
-						
+						transaction.executeSql('SELECT count() AS count FROM relationship WHERE workout_id=' + workout_id, [],
+						function (transaction, results) {
+							$.each(
+								results.rows,
+								function(rowIndex) {
+									var row = results.rows.item(rowIndex);
+									// FIXME	
+									$('a[data-identifier=' + workout_id + ']').append('<small class="counter">' + row.count + '</small>');
+								}
+							);
+						}, errorHandler);
+
 						// render single workout
 						$('#workouts').append('<li><a href="#ex" data-identifier="' + row.id + '" title="' + row.name + '">' + row.name + '</a></li>');
 					}
@@ -310,13 +320,13 @@ $(document).ready(function(e){
 			}, errorHandler);
 		});
 	}
-	
-	
+
+
 	// if a particular workout item is swiped
 	$('#workouts li a').live('swipe', function(event, data) {
-		
+
 		console.log('workout was swiped');
-				
+
 		var delete_check = confirm('Are you sure you want to delete this?');
 
 		if (delete_check){
@@ -337,31 +347,31 @@ $(document).ready(function(e){
 			);
 		}
 	});
-	
+
 
 	// when a single workout is clicked
-	$('#workouts li a').livequery(clickEvent, function(event, info){
-		
+	$('#workouts li a').tap(function(event, info){
+
 		console.log('workout was clicked');
-		
+
 		// empty the title of the workout
 		$('#ex .toolbar h1').empty();
-		
+
 		// empty current list of exercises
 		$('#exercises').empty();
-		
+
 		// get the id of the workout that was clicked
 		var workout_id	 = $(this).attr('data-identifier');
 		var workout_name = $(this).attr('title');
-		
+
 		$('#ex .toolbar h1').append(workout_name);
-		
+
 		// load the exercises for that workout
 		database.transaction(function(transaction) {
-			transaction.executeSql('SELECT exercise.id, exercise.name, exercise.info from exercise WHERE exercise.id IN (select exercise_id from relationship where workout_id=' + workout_id + ');', [],
+			transaction.executeSql('SELECT exercise.id, exercise.name, exercise.info FROM exercise WHERE exercise.id IN (SELECT exercise_id FROM relationship WHERE workout_id=' + workout_id + ');', [],
 			function (transaction, results) {
 				console.log('rendering exercises');
-				
+
 				$.each(
 					results.rows,
 					function(rowIndex) {
@@ -379,27 +389,27 @@ $(document).ready(function(e){
 	// when workouts list slides back in
 	$('#ex').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
-  		console.log('sliding workouts in');
-			
+	 		console.log('sliding workouts in');
+
 			// set the info item back to the generic one
 			$('.info p').empty();
 			$('.info p').append('<p>Tap a workout to see exercises.</p>');
 		}
-  });
+	 });
 
 
 	// sliding exercise list in
 	$('#ex').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
-  		console.log('sliding exercises in');
+	 		console.log('sliding exercises in');
 		}
-  });
+	 });
 
 	// if a particular exercise item is swiped
 	$('#ex li a').live('swipe', function(event, data) {
-		
+
 		console.log('exercise was swiped');
-				
+
 		var delete_check = confirm('Are you sure you want to delete this?');
 
 		if (delete_check){
@@ -420,62 +430,71 @@ $(document).ready(function(e){
 			);
 		}
 	});
-	
-	
+
+
 	// when a single exercise is clicked
-	$('#ex li a').livequery(clickEvent, function(event, info){
+	$('#ex li a').tap(function(event, info){
 		console.log('exercise was clicked');
-		
+
 		$('.info p').empty();		
-		
+
 		// get the ID of the exercise from the 'data-identifier' attribute of the exercise tapped
 		var exercise_id 	= $(this).attr('data-identifier');
-		
+
 		// get the set info of the exercise from the 'title' attribute of the exercise tapped
 		var exercise_info = $(this).attr('title');
-		
+
+		var next_set = $(this).next('li a[data-identifier]').val();
+		// FIXME
+		alert(next_set);
+
 		// append a hidden input with this ID to the form, so when it's submitted we know
 		// which exercise to add the set to
 		$('#ex_id').val(exercise_id);
+
+
+		// assign the exercise ID of the next exercise in the list to the 'next set' button
+		$('#next_set').attr('href', next_set);
+
 		$('.info p').append('<p>' + exercise_info + '</p>');
 		console.log('getting ready for exercise id: ' + exercise_id);
 	});
-	
-	
-	
+
+
+
 	// bind the form to save the exercise
 	var set_form = $("#set_form");
-	
+
 	// setting rep inputs outside of functions, since more than one is referencing 'em			
 	var weightInput	= set_form.find("input.weight")
 	var repInput		= set_form.find("input.reps")
-	
-	
-	
+
+
+
 	// sliding set list in
 	$('#rep').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
-				
+
 			console.log('sliding set recorder in');
-			
+
 			// resetting inputs, since the user had to click back to get here
 			weightInput.val("");
 		 	repInput.val("");
-		 	
+
 			// setting exercise id to refresh sets for
 			var exercise_id = $('#ex_id').val();
-			
+
 			// refresh the exercise list
 			getSets(refreshSets, exercise_id);
 		}
 	});
-	
 
-	
+
+
 	// if a particular rep item is swiped
 	$('#sets li a').live('swipe', function(event, data) {
 		console.log('rep was swiped');
-				
+
 		var delete_check = confirm('Are you sure you want to delete this?');
 
 		if (delete_check){
@@ -497,36 +516,36 @@ $(document).ready(function(e){
 	});
 
 
-	
-	
+
+
 	// when form is submitted
-  set_form.submit(function(event){
- 		// prevent the default submit
+	 set_form.submit(function(event){
+			// prevent the default submit
 		event.preventDefault();
-		
+
 		console.log('form was submitted! attempting to save set...');
-		
+
 		// setting variables to be inserted
 		var exercise_id = $('#ex_id').val();
 		var weight = weightInput.val();
 		var reps = repInput.val();
-			
+
 		// validation checks
 		// testing if numbers were entered in weight/reps
 		var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
 
-    if(weight.length > 0 && reps.length > 0 && numberRegex.test(weight) && numberRegex.test(reps)){    
+	   if(weight.length > 0 && reps.length > 0 && numberRegex.test(weight) && numberRegex.test(reps)){    
 			// save the exercise
 			saveSet(exercise_id,weight,reps,function(){
-				
+
 				console.log('saving exercise id: ' + exercise_id + ' / weight: ' + weight + ' / reps: ' + reps );
-				
+
 				// reset the rep input only (typical for gym)
 			 	repInput.val("");
 
 				// refresh the exercise list
 				getSets(refreshSets, exercise_id);
-				
+
 				// putting focus on rep input, since weight will probably stay the same
 				repInput.focus();
 			});
@@ -535,36 +554,36 @@ $(document).ready(function(e){
 			alert("You're missing a value, or entered a non-number.")
 		}
 	});
-	
-	
-	
+
+
+
 	// if export button was clicked
-	$('.leftButton').livequery(clickEvent, function(event, info){
+	$('.leftButton').tap(function(event, info){
 		console.log('export was clicked');
 		$('.info p').empty();
 		$('.info p').append("<p>Type an email address to send today's workout.</p>");
 	});
-	
-	
-	
+
+
+
 	// setting em_content out here since submission uses it, too
 	var em_content = "";	
 	var em_date = "";
-	
+
 	// flipping export pane in
 	$('#export').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
-				
+
 			console.log('flipping export pane in');
-			
+
 			$('#em_sets').empty();
-			
+
 			// setting a standard date for the set recorded
 			var myDate = new Date();
 			em_date = (myDate.getMonth()+1) + '/' + myDate.getDate() + '/' + myDate.getFullYear();
-			
+
 			console.log('displaying sets for: ' + em_date);
-			
+
 			database.transaction(function(transaction){
 				transaction.executeSql('SELECT pump.ex_id, pump.reps, pump.weight, exercise.name FROM pump,exercise WHERE exercise.id=pump.ex_id AND pump.rep_date LIKE "%' + em_date + '%";',	[],
 				function (transaction, results) {
@@ -574,52 +593,52 @@ $(document).ready(function(e){
 						results.rows,
 						function(rowIndex) {
 							var row = results.rows.item(rowIndex);
-							
+
 							// setting contents of reps (used in displaying)
 							rep_content = row.name + ' / ' + row.reps + ' reps of ' + row.weight + ' lbs';
-							
+
 							// setting contents of reps (used in emailing)
 							em_content += row.name + ' / ' + row.reps + ' reps of ' + row.weight + ' lbs<br />';
-							
-							
+
+
 							// showing the user which sets are going to be emailed
 							$('#em_sets').append('<li>' + rep_content + '</li>');
-						
+
 						}
 					);
 				}, errorHandler);
 			});	
 		}
 	});
-	
 
 
-	
+
+
 	// bind the form to export today's exercises
 	var export_form = $("#export_form");
-	
+
 	// if export form is submitted
 	export_form.submit(function(event){
-		
+
 		event.preventDefault();
-		
-		console.log('form was submitted! attempting to export...');
-		
+
+		console.log('form was submitted! attempting to export via email...');
+
 		// setting email input
 		var emailInput = export_form.find("input.email");
-		
+
 		// getting the value of the email input
 		var email = emailInput.val();
-		
+
 		// validation checks
 		// testing if email address was entered appropriately
 		var emailRegex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 
 		// if email validation checks out, send the email
-    if(email.length > 0 && emailRegex.test(email)){
-			
+	   if(email.length > 0 && emailRegex.test(email)){
+
 			console.log('sending mail to: ' + email);
-			
+
 			// creating the email url that also contains the data
 			to_email = "mailto:" + email + "?subject=" + em_date + " workout&body=" + em_content;
 
@@ -632,84 +651,123 @@ $(document).ready(function(e){
 			alert("Email address isn't in the correct format.")
 		}
 	});
-	
-	
-	
+
+
+	// bind the form to export to trainingpeaks
+	var tp_form = $("#tp_form")
+
+	// if export form is submitted
+	tp_form.submit(function(event){
+
+		event.preventDefault();
+
+		console.log('form was submitted! attempting to export to trainingpeaks...');
+
+		// setting username/password input
+		var usernameInput = tp_form.find("input.tp_username");
+		var passwordInput = tp_form.find("input.tp_password");
+
+		// getting the value of the username/password input
+		var username = usernameInput.val();
+		var password = passwordInput.val();
+
+		// if email validation checks out, send the email
+	   if(username.length > 0 && password.length > 0){
+			console.log('exporting to trainingpeaks username: ' + username);
+
+			// creating the xml file containing the workout data
+
+			// FIXME: figure out how to send to trainingpeaks
+			window.location.href = 'https://www.trainingpeaks.com/TPWebServices/EasyFileUpload.ashx?username=' + username + '&password=' + password;
+
+			// redirecting user to the email link
+			window.location.href = '#home';
+
+		} else {
+			console.log('whoops, something is wrong with what the user input');
+			alert("You didn't enter a value in username, or password.")
+		}
+
+	});
+
+
 	// bind the form to add a workout
 	var workout_form = $("#workout_form");
-	
+
 	// if workout form is submitted
 	workout_form.submit(function(event){
-		
-		event.preventDefault();
-		
+
+		// don't prevent default, because we want it to jump back on submit
+		//event.preventDefault();
+
 		console.log('form was submitted! attempting to create the workout');
-				
+
 		// getting the workout input
 		var workoutInput = workout_form.find("input.workout_name");
-		
+
 		// getting the value of the workout input
 		var workout = workoutInput.val();
-		
-		
+
+
 		if(workout.length > 0){
 			// save the workout
 			saveWorkout(workout,function(){
-				
+
 				console.log('saving workout:' + workout);
-				
+
 				// reset the workout input
 			 	workoutInput.val("");
 
+				window.location.href = '#workouts';
+
 			});
-			
+
 		} else {
 			console.log('whoops, something is wrong with what the user input');
 			alert("Type a workout name, please.");
 		}    
-    
-		
+
 	});
-	
-	
+
+
 	// bind the form to add a workout
 	var exercise_form = $("#exercise_form");
-	
+
 	// if workout form is submitted
 	exercise_form.submit(function(event){
-		
+
 		event.preventDefault();
-		
+
 		console.log('form was submitted! attempting to create the workout');
-				
+
 		// getting the workout input
 		var exerciseInput = exercise_form.find("input.exercise_name");
 		var exerciseInfo  = exercise_form.find("input.exercise_info");
-		
-		
+
+
 		// getting the value of the workout input
 		var exercise = exerciseInput.val();
 		var exercise_info = exerciseInfo.val();
-		
+
 		if(exercise.length > 0 && exercise_info.length > 0){
 			// save the exercise
 			saveExercise(exercise,exercise_info,function(){
-				
+
 				console.log('saving exercise:' + exercise);
-				
+
 				// reset the workout input
 			 	exerciseInput.val("");
 				exerciseInfo.val("");
 			});
-			
+
 		} else {
 			console.log('whoops, something is wrong with what the user input');
 			alert("Fill out exercise name and info, please.");
 		}    
-    
-		
+
+
 	});
-	
-  
-	
-}); // end jQuery function();
+
+
+
+	}); // end jQuery function();

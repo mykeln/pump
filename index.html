@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+  <title>Pump</title>
+  <style type="text/css" media="screen">@import "./jqtouch/jqtouch.css";</style>
+  <style type="text/css" media="screen">@import "./themes/jqt/theme.css";</style>
+  <style type="text/css" media="screen">@import "./pump.css";</style>
+
+  <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+  <script type="text/javascript">google.load("jquery", "1"); </script>
+  <script src="./jqtouch/jqtouch.js" type="application/x-javascript" charset="utf-8"></script>
+  <script src="./jqtouch/pump.js" type="application/x-javascript" charset="utf-8"></script>
+</head>
+<body>
+<div id="jqt">
+<div id="home" class="edgetoedge">
+  <div class="toolbar">
+    <a href="#export" class="button flip leftButton" id="exportButton">Export</a>
+    <h1><img src="./pump_logo.png"></h1>
+    <a href="#add_workout" class="button slideup" id="addWorkoutButton">+</a>
+  </div>
+  
+  <div class="info">
+    <p>Tap a workout to see exercises.</p>
+  </div>
+  <h2>Workouts</h2>
+  
+  <ul id="workouts" class="edgetoedge">
+    <!-- dynamically filled with workouts -->
+  </ul>
+</div>
+
+<div id="ex">
+  <div class="toolbar">
+    <a class="back" href="#">Back</a>
+    <h1>Workout</h1>
+    <a href="#add_exercise" class="add slideup" id="addExerciseButton">+</a>
+  </div>
+  <ul id="exercises" class="edgetoedge">
+    <!-- dynamically filled with exercises -->
+  </ul>
+</div>
+
+
+<div id="rep">
+  <div class="toolbar">
+    <a class="back" href="#">Back</a>
+    <h1>Record a Set</h1>
+  </div>
+  <div class="info">
+    <p></p>
+  </div>
+  <form id="set_form" action="" method="post" accept-charset="utf-8">
+    <input type="hidden" id="ex_id" value="x_placeholder">
+    <h2>Add Set</h2>
+    <ul class="rounded">
+      <li>
+         <input type="number" name="weight" class="weight" placeholder="Weight">
+       </li>
+      <li>
+        <input type="number" name="reps" class="reps" placeholder="Reps">
+      </li>
+    </ul>
+    <a href="#" class="grayButton submit">Pump Set</a>      
+  </form>
+  <a href="x_placeholder" id="next_set" class="redButton">Next Exercise</a>
+  
+  <h2>Recorded Sets</h2>
+  <ul id="sets">
+    <li>None</li>
+  </ul>
+</div>
+
+<div id="export">
+  <div class="toolbar">
+    <a class="back" href="#">Back</a>
+    <h1>Export</h1>
+  </div>
+  <div class="info">
+    <p></p>
+  </div>
+  <form id="export_form" action="" method="post" accept-charset="utf-8">
+    <h2>Send to Email Address</h2>
+    <ul class="rounded">
+      <li>
+        <input type="text" name="email" class="email" placeholder="Email Address">
+      </li>
+    </ul>
+    <a href="#" id="em_submit" class="grayButton submit">Send Email</a>
+  </form>
+  <!--
+  <form id="tp_form" action="" method="post" accept-charset="utf-8">
+    <h2>Send to TrainingPeaks</h2>
+    <ul class="rounded">
+      <li>
+        <input type="text" name="tp_username" class="tp_username" placeholder="Username">
+      </li>
+      <li>
+        <input type="password" name="tp_password" class="tp_password" placeholder="Password">
+      </li>
+    </ul>
+    <a href="#" id="tp_submit" class="grayButton submit">Send to TrainingPeaks</a>
+  </form>
+-->
+  <h2>Sending Sets</h2>
+  <ul id="em_sets">
+    <li>None</li>
+  </ul>
+</div>
+
+<div id="add_workout">
+  <div class="toolbar">
+    <a class="cancel" href="#">Cancel</a>
+    <h1>Add Workout</h1>
+  </div>
+  <div class="info">
+    <p></p>
+  </div>
+  <form id="workout_form" action="" method="post" accept-charset="utf-8">
+    <ul class="rounded">
+      <li>
+        <input type="text" name="workout_name" class="workout_name" placeholder="Workout Name">
+      </li>
+    </ul>
+    <a href="#home" id="workout_submit" class="grayButton submit">Create Workout</a>
+  </form>
+</div>
+
+<div id="add_exercise">
+  <div class="toolbar">
+    <a class="cancel" href="#">Cancel</a>
+    <h1>Add Exercise</h1>
+  </div>
+  <div class="info">
+    <p></p>
+  </div>
+  <form id="exercise_form" action="" method="post" accept-charset="utf-8">
+    <ul class="rounded">
+      <li>
+        <input type="text" name="exercise_name" class="exercise_name" placeholder="Exercise Name">    
+      </li>
+      <li><input type="text" name="exercise_info" class="exercise_info" placeholder="Exercise Info">
+      </li>
+    </ul>
+    <a href="#ex" id="exercise_submit" class="grayButton submit">Create Exercise</a>
+  </form>
+</div>
+  
+<!--
+<div id="new" class="edgetoedge">
+  <form>
+    <div class="toolbar">
+      <h1>
+        New Message
+      </h1><a class="cancel" href="#home">Cancel</a> <a class="button disabled blueButton" href="#">Send</a>
+    </div>
+    <fieldset>
+      <ul class="rounded">
+        <li>
+          <label>To: <input type="text" name="name" value=""></label>
+        </li>
+        <li>
+          <label>Cc/Bcc, From:</label> <input type="text" name="bcc" placeholder="you@email.com">
+        </li>
+        <li>
+          <label>Subject:</label> <input type="text" name="subject" placeholder="you@email.com">
+        </li>
+        <li>
+          <textarea>My email</textarea>
+        </li>
+      </ul>
+    </fieldset><input type="submit">
+  </form>
+</div>
+-->
+
+</body>
+</html>
