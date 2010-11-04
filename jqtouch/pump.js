@@ -430,7 +430,7 @@ $(function(){
 	});
 
 	// when workouts list slides back in
-	$('#workouts').bind('pageAnimationStart', function(event, info){
+	$('#home').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
 	 		console.log('sliding workouts in');
 
@@ -488,11 +488,11 @@ $(function(){
 		// get the set info of the exercise from the 'title' attribute of the exercise tapped
 		var exercise_info = $(this).attr('title');
 
-/*
-		var next_set = $(this).next('li a[data-identifier]').val();
-		// FIXME
+
+		// FIXME:
+		var next_set = $(this).next('li a[data-identifier]').text();
 		alert(next_set);
-*/
+
 
 		// append a hidden input with this ID to the form, so when it's submitted we know
 		// which exercise to add the set to
@@ -634,7 +634,6 @@ $(function(){
 			database.transaction(function(transaction){
 				transaction.executeSql('SELECT pump.ex_id, pump.reps, pump.weight, exercise.name FROM pump,exercise WHERE exercise.id=pump.ex_id AND pump.rep_date LIKE "%' + em_date + '%";',	[],
 				function (transaction, results) {
-					// FIXME: get name of exercise
 					// showing the user the exercises that are going to be exported
 					$.each(
 						results.rows,
@@ -698,45 +697,6 @@ $(function(){
 			alert("Email address isn't in the correct format.")
 		}
 	});
-
-
-	// bind the form to export to trainingpeaks
-	var tp_form = $("#tp_form")
-
-	// if export form is submitted
-	tp_form.submit(function(event){
-
-		event.preventDefault();
-
-		console.log('form was submitted! attempting to export to trainingpeaks...');
-
-		// setting username/password input
-		var usernameInput = tp_form.find("input.tp_username");
-		var passwordInput = tp_form.find("input.tp_password");
-
-		// getting the value of the username/password input
-		var username = usernameInput.val();
-		var password = passwordInput.val();
-
-		// if email validation checks out, send the email
-	   if(username.length > 0 && password.length > 0){
-			console.log('exporting to trainingpeaks username: ' + username);
-
-			// creating the xml file containing the workout data
-
-			// FIXME: figure out how to send to trainingpeaks
-			window.location.href = 'https://www.trainingpeaks.com/TPWebServices/EasyFileUpload.ashx?username=' + username + '&password=' + password;
-
-			// redirecting user to the email link
-			jQT.goBack();
-
-		} else {
-			console.log('whoops, something is wrong with what the user input');
-			alert("You didn't enter a value in username, or password.")
-		}
-
-	});
-
 
 	// bind the form to add a workout
 	var workout_form = $("#workout_form");
