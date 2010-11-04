@@ -8,7 +8,7 @@ var jqtouch = $.jQTouch({
     addGlossToIcon: false,
 		useFastTouch: true,
     startupScreen:'apple-touch-startup.png',
-    statusBar:'black-translucent',
+    statusBar:'default',
     touchSelector: '#sets li a',
     preloadImages: [
         'themes/jqt/img/back_button.png',
@@ -92,7 +92,7 @@ if (!(dataLoad)){
 		);
 	}, errorHandler);
 
-	/*
+	
 	// grab seed data from a json file
 	$.getJSON("./pump_seed.js", function(data){
 		$.each(data.workouts, function(i,item){
@@ -139,8 +139,7 @@ if (!(dataLoad)){
 			});
 		});
 	});
-	*/
-
+	
 	// setting data loaded to true
 	localStorage.setItem('data', true);
 
