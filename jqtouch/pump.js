@@ -92,7 +92,7 @@ if (!(dataLoad)){
 		);
 	}, errorHandler);
 
-	
+	/*
 	// grab seed data from a json file
 	$.getJSON("./pump_seed.js", function(data){
 		$.each(data.workouts, function(i,item){
@@ -139,7 +139,7 @@ if (!(dataLoad)){
 			});
 		});
 	});
-	
+	*/
 	// setting data loaded to true
 	localStorage.setItem('data', true);
 
@@ -305,21 +305,20 @@ var refreshWorkouts = function() {
 
 					var workout_id = row.id;
 
-					// FIXME: count the amount of exercises per workout
 					transaction.executeSql('SELECT count() AS count FROM relationship WHERE workout_id=' + workout_id, [],
 					function (transaction, results) {
 						$.each(
 							results.rows,
 							function(rowIndex) {
 								var row = results.rows.item(rowIndex);
-								// FIXME	
-								$('a[data-identifier=' + workout_id + ']').append('<small class="counter">' + row.count + '</small>');
+								// adding counter to each workout item
+								$('#ex_item[data-identifier=' + workout_id + ']').append('<small class="counter">' + row.count + '</small>');
 							}
 						);
 					}, errorHandler);
 
 					// render single workout
-					$('#workouts').append('<li><a href="#ex" data-identifier="' + row.id + '" title="' + row.name + '">' + row.name + '</a></li>');
+					$('#workouts').append('<li><a href="#ex" id="ex_item" data-identifier="' + row.id + '" title="' + row.name + '">' + row.name + '</a></li>');
 				}
 			);
 		}, errorHandler);
