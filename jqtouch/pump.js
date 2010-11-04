@@ -6,6 +6,7 @@
 var jqtouch = $.jQTouch({
     icon:'apple-touch-icon.png',
     addGlossToIcon: false,
+		useFastTouch: true,
     startupScreen:'apple-touch-startup.png',
     statusBar:'black-translucent',
     touchSelector: '#sets li a',
