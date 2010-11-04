@@ -11,8 +11,6 @@ var jqtouch = $.jQTouch({
     statusBar:'black-translucent',
     touchSelector: '#sets li a',
     preloadImages: [
-        'themes/jqt/img/chevron_white.png',
-        'themes/jqt/img/bg_row_select.gif',
         'themes/jqt/img/back_button.png',
         'themes/jqt/img/back_button_clicked.png',
         'themes/jqt/img/button_clicked.png',
@@ -234,7 +232,7 @@ var getSets = function(callback, exercise_id) {
 	);
 };
 
-// refresh the exercises list
+// refresh the sets list
 var refreshSets = function(results) {
 
   // clear out the list of exercises
@@ -259,6 +257,81 @@ var refreshSets = function(results) {
 	}
 };
 
+// refresh the workouts list
+var refreshWorkouts = function() {
+
+	// showing initial workout list
+	console.log('preparing workouts list');
+
+	// empty current list of exercises
+	$('#workouts').empty();
+
+	// when a single workout is clicked, load the exercises for that workout
+	database.transaction(function(transaction) {
+		transaction.executeSql('SELECT workout.id,workout.name,workout.type FROM workout ORDER BY workout.name ASC;', [],
+		function (transaction, results) {
+			console.log('rendering workouts');
+
+			$.each(
+				results.rows,
+				function(rowIndex) {
+					var row = results.rows.item(rowIndex);
+
+					var workout_id = row.id;
+
+					// FIXME: count the amount of exercises per workout
+					transaction.executeSql('SELECT count() AS count FROM relationship WHERE workout_id=' + workout_id, [],
+					function (transaction, results) {
+						$.each(
+							results.rows,
+							function(rowIndex) {
+								var row = results.rows.item(rowIndex);
+								// FIXME	
+								$('a[data-identifier=' + workout_id + ']').append('<small class="counter">' + row.count + '</small>');
+							}
+						);
+					}, errorHandler);
+
+					// render single workout
+					$('#workouts').append('<li><a href="#ex" data-identifier="' + row.id + '" title="' + row.name + '">' + row.name + '</a></li>');
+				}
+			);
+		}, errorHandler);
+	});
+
+};
+
+// refresh the exercises list
+var refreshExercises = function(workout_id,workout_name) {
+
+	// empty the title of the workout
+	$('#ex .toolbar h1').empty();
+
+	// empty current list of exercises
+	$('#exercises').empty();
+
+	$('#ex .toolbar h1').append(workout_name);
+
+	// load the exercises for that workout
+	database.transaction(function(transaction) {
+		transaction.executeSql('SELECT exercise.id, exercise.name, exercise.info FROM exercise WHERE exercise.id IN (SELECT exercise_id FROM relationship WHERE workout_id=' + workout_id + ');', [],
+		function (transaction, results) {
+			console.log('rendering exercises');
+
+			$.each(
+				results.rows,
+				function(rowIndex) {
+					var row = results.rows.item(rowIndex);
+					$('#exercises').append('<li class="arrow"><a href="#rep" data-identifier="' + row.id + '" title="' + row.info + '">' + row.name + '</a></li>');
+				}
+			);
+		}, errorHandler);
+	});
+
+	console.log('getting ready for workout id: ' + workout_id);
+
+};
+
 
 
 ////////////////////////////////////
@@ -267,64 +340,28 @@ var refreshSets = function(results) {
 
 // when the DOM is ready, init scripts
 $(function(){
+	
+	
+	// setting click event, so behavior is correct when viewing on iphone vs. simulator, or web page
+	var userAgent = navigator.userAgent.toLowerCase();
+	var isiPhone = (userAgent.indexOf('iphone') != -1 || userAgent.indexOf('ipod') != -1) ? true : false;
+	clickEvent = isiPhone ? clickEvent : 'click';
+	console.log('User is: ' + userAgent + ', so I will treat all interactions as ' + clickEvent + 's');
+
+	
   // Dynamically set next page titles after clicking certain links
   $('#home ul a, #ex ul a, #rep ul a').click(function(){
       $( $(this).attr('href') + ' h1' ).html($(this).html());
   });
 
-
-	// setting click event, so behavior is correct when viewing on iphone vs. simulator, or web page
-	var userAgent = navigator.userAgent.toLowerCase();
-	var isiPhone = (userAgent.indexOf('iphone') != -1 || userAgent.indexOf('ipod') != -1) ? true : false;
-	clickEvent = isiPhone ? 'tap' : 'click';
-	console.log('User is: ' + userAgent + ', so I will treat all interactions as ' + clickEvent + 's');
-
-
 	// when the workouts div exists in the DOM
 	if ($('#workouts').length) {  
-		// showing initial workout list
-		console.log('preparing workouts list');
-
-		// empty current list of exercises
-		$('#workouts').empty();
-
-		// when a single workout is clicked, load the exercises for that workout
-		database.transaction(function(transaction) {
-			transaction.executeSql('SELECT workout.id,workout.name,workout.type FROM workout ORDER BY workout.name ASC;', [],
-			function (transaction, results) {
-				console.log('rendering workouts');
-
-				$.each(
-					results.rows,
-					function(rowIndex) {
-						var row = results.rows.item(rowIndex);
-
-						var workout_id = row.id;
-
-						// FIXME: count the amount of exercises per workout
-						transaction.executeSql('SELECT count() AS count FROM relationship WHERE workout_id=' + workout_id, [],
-						function (transaction, results) {
-							$.each(
-								results.rows,
-								function(rowIndex) {
-									var row = results.rows.item(rowIndex);
-									// FIXME	
-									$('a[data-identifier=' + workout_id + ']').append('<small class="counter">' + row.count + '</small>');
-								}
-							);
-						}, errorHandler);
-
-						// render single workout
-						$('#workouts').append('<li><a href="#ex" data-identifier="' + row.id + '" title="' + row.name + '">' + row.name + '</a></li>');
-					}
-				);
-			}, errorHandler);
-		});
+		refreshWorkouts();
 	}
 
 
 	// if a particular workout item is swiped
-	$('#workouts li a').live('swipe', function(event, data) {
+	$('#workouts li a').swipe(function(event, data) {
 
 		console.log('workout was swiped');
 
@@ -351,44 +388,22 @@ $(function(){
 
 
 	// when a single workout is clicked
-	$('#workouts li a').tap(function(event, info){
+	$('#workouts li a').live(clickEvent, function(event, info){
 
 		console.log('workout was clicked');
-
-		// empty the title of the workout
-		$('#ex .toolbar h1').empty();
-
-		// empty current list of exercises
-		$('#exercises').empty();
 
 		// get the id of the workout that was clicked
 		var workout_id	 = $(this).attr('data-identifier');
 		var workout_name = $(this).attr('title');
-
-		$('#ex .toolbar h1').append(workout_name);
-
-		// load the exercises for that workout
-		database.transaction(function(transaction) {
-			transaction.executeSql('SELECT exercise.id, exercise.name, exercise.info FROM exercise WHERE exercise.id IN (SELECT exercise_id FROM relationship WHERE workout_id=' + workout_id + ');', [],
-			function (transaction, results) {
-				console.log('rendering exercises');
-
-				$.each(
-					results.rows,
-					function(rowIndex) {
-						var row = results.rows.item(rowIndex);
-						$('#exercises').append('<li class="arrow"><a href="#rep" data-identifier="' + row.id + '" title="' + row.info + '">' + row.name + '</a></li>');
-					}
-				);
-			}, errorHandler);
-		});
-
-		console.log('getting ready for workout id: ' + workout_id);
+		
+		refreshExercises(workout_id,workout_name);
+		
+		alert(workout_id);
 
 	});
 
 	// when workouts list slides back in
-	$('#ex').bind('pageAnimationStart', function(event, info){
+	$('#workouts').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
 	 		console.log('sliding workouts in');
 
@@ -407,7 +422,7 @@ $(function(){
 	 });
 
 	// if a particular exercise item is swiped
-	$('#ex li a').live('swipe', function(event, data) {
+	$('#ex li a').swipe(function(event, data) {
 
 		console.log('exercise was swiped');
 
@@ -434,7 +449,7 @@ $(function(){
 
 
 	// when a single exercise is clicked
-	$('#ex li a').tap(function(event, info){
+	$('#ex li a').live(clickEvent, function(event, info){
 		console.log('exercise was clicked');
 
 		$('.info p').empty();		
@@ -493,7 +508,7 @@ $(function(){
 
 
 	// if a particular rep item is swiped
-	$('#sets li a').live('swipe', function(event, data) {
+	$('#sets li a').swipe(function(event, data) {
 		console.log('rep was swiped');
 
 		var delete_check = confirm('Are you sure you want to delete this?');
@@ -559,7 +574,7 @@ $(function(){
 
 
 	// if export button was clicked
-	$('.leftButton').tap(function(event, info){
+	$('.leftButton').live(clickEvent, function(event, info){
 		console.log('export was clicked');
 		$('.info p').empty();
 		$('.info p').append("<p>Type an email address to send today's workout.</p>");
