@@ -92,7 +92,6 @@ if (!(dataLoad)){
 		);
 	}, errorHandler);
 
-	/*
 	// grab seed data from a json file
 	$.getJSON("./pump_seed.js", function(data){
 		$.each(data.workouts, function(i,item){
@@ -139,7 +138,7 @@ if (!(dataLoad)){
 			});
 		});
 	});
-	*/
+	
 	// setting data loaded to true
 	localStorage.setItem('data', true);
 
@@ -365,30 +364,30 @@ var refreshExercises = function(workout_id,workout_name) {
 
 // when the DOM is ready, init scripts
 $(function(){
-	
-	
 	// setting click event, so behavior is correct when viewing on iphone vs. simulator, or web page
 	var userAgent = navigator.userAgent.toLowerCase();
 	var isiPhone = (userAgent.indexOf('iphone') != -1 || userAgent.indexOf('ipod') != -1) ? true : false;
-	clickEvent = isiPhone ? clickEvent : 'click';
+	var clickEvent = isiPhone ? clickEvent : 'click';
 	console.log('User is: ' + userAgent + ', so I will treat all interactions as ' + clickEvent + 's');
 
-	
-  // Dynamically set next page titles after clicking certain links
-  $('#home ul a, #ex ul a, #rep ul a').click(function(){
-      $( $(this).attr('href') + ' h1' ).html($(this).html());
-  });
 
+
+
+////////////////////////
+// INITIAL LOAD STATE //
 	// when the workouts div exists in the DOM
-	if ($('#workouts').length) {  
+	if ($('#home').length) {  
 		refreshWorkouts();
 	}
 	
-	// when workouts list slides back in
+
+/////////////////////
+// WORKOUT ACTIONS //
+	// when workouts list slides in
 	$('#home').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
 	 		console.log('sliding workouts in');
-	
+
 			refreshWorkouts();
 
 			// set the info item back to the generic one
@@ -397,6 +396,19 @@ $(function(){
 		}
 	 });
 
+
+	// when a single workout is clicked
+	$('#workouts li a').live(clickEvent, function(event, info){
+
+		console.log('workout was clicked');
+
+		// get the id of the workout that was clicked
+		var workout_id	 = $(this).attr('data-identifier');
+		var workout_name = $(this).attr('title');
+		
+		refreshExercises(workout_id,workout_name);
+
+	});
 
 	// if a particular workout item is swiped
 	$('#workouts li a').swipe(function(event, data) {
@@ -416,8 +428,7 @@ $(function(){
 				function(transaction) {
 					transaction.executeSql('DELETE FROM workout WHERE id=' + workout_id + ';', [], 
 					function() {
-						// refresh the exercise list
-						// need a refresh workouts callback getSets(refreshSets, exercise_id);
+						jqtouch.goTo('#home', 'slideleft');
 					}, errorHandler);
 				}
 			);
@@ -425,27 +436,46 @@ $(function(){
 	});
 
 
-	// when a single workout is clicked
-	$('#workouts li a').live(clickEvent, function(event, info){
-
-		console.log('workout was clicked');
-
-		// get the id of the workout that was clicked
-		var workout_id	 = $(this).attr('data-identifier');
-		var workout_name = $(this).attr('title');
-		
-		refreshExercises(workout_id,workout_name);
-
-	});
 
 
-
+//////////////////////
+// EXERCISE ACTIONS //
 	// sliding exercise list in
 	$('#ex').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
 	 		console.log('sliding exercises in');
 		}
 	 });
+	
+	// when a single exercise is clicked
+	$('#ex li a, #next_set').live(clickEvent, function(event, info){
+		console.log('exercise was clicked');
+
+		// get the ID of the exercise from the 'data-identifier' attribute of the exercise tapped
+		var exercise_id 	= $(this).attr('data-identifier');
+
+		// get the set info of the exercise from the 'title' attribute of the exercise tapped
+		var exercise_info = $(this).attr('title');
+		$('.info p').empty();
+		$('.info p').append('<p>' + exercise_info + '</p>');
+
+		// refresh the exercise list
+		getSets(refreshSets, exercise_id);
+
+		// get the next exercise id in the workout
+		var next_set = $(this).parent('li').next('li').find('a').attr('data-identifier');
+
+		// assign the exercise ID of the next exercise in the list to the 'next set' button
+		$('#next_set').attr('data-identifier', next_set);
+
+
+		// append a hidden input with this ID to the form, so when it's submitted we know
+		// which exercise to add the set to
+		$('#ex_id').val(exercise_id);
+
+
+		console.log('getting ready for exercise id: ' + exercise_id);
+	});
 
 	// if a particular exercise item is swiped
 	$('#ex li a').swipe(function(event, data) {
@@ -465,8 +495,9 @@ $(function(){
 				function(transaction) {
 					transaction.executeSql('DELETE FROM exercise WHERE id=' + exercise_id + ';', [], 
 					function() {
-						// refresh the exercise list
-						// need a refresh exercise callback getSets(refreshSets, exercise_id);
+						refreshExercises(exercise_id)
+						jqtouch.goTo('#ex', 'slideleft');
+						
 					}, errorHandler);
 				}
 			);
@@ -474,48 +505,16 @@ $(function(){
 	});
 
 
-	// when a single exercise is clicked
-	$('#ex li a').live(clickEvent, function(event, info){
-		console.log('exercise was clicked');
-
-		// get the ID of the exercise from the 'data-identifier' attribute of the exercise tapped
-		var exercise_id 	= $(this).attr('data-identifier');
-
-		// get the set info of the exercise from the 'title' attribute of the exercise tapped
-		var exercise_info = $(this).attr('title');
-		$('.info p').empty();
-		$('.info p').append('<p>' + exercise_info + '</p>');
-
-		// refresh the exercise list
-		getSets(refreshSets, exercise_id);
-		
-		
-		// FIXME: get the next exercise in the workout
-		var next_set = $(this).next('li a').attr('data-identifier');
-		alert(next_set);
-		
-		// assign the exercise ID of the next exercise in the list to the 'next set' button
-		$('#next_set').attr('href', next_set);
 
 
-		// append a hidden input with this ID to the form, so when it's submitted we know
-		// which exercise to add the set to
-		$('#ex_id').val(exercise_id);
-
-
-		console.log('getting ready for exercise id: ' + exercise_id);
-	});
-
-
-
+//////////////////
+// SET ACTIONS //
 	// bind the form to save the exercise
 	var set_form = $("#set_form");
 
 	// setting rep inputs outside of functions, since more than one is referencing 'em			
 	var weightInput	= set_form.find("input.weight")
 	var repInput		= set_form.find("input.reps")
-
-
 
 	// sliding set list in
 	$('#rep').bind('pageAnimationStart', function(event, info){
@@ -529,41 +528,10 @@ $(function(){
 
 			// setting exercise id to refresh sets for
 			var exercise_id = $('#ex_id').val();
-
-
 		}
 	});
-
-
-
-	// if a particular rep item is swiped
-	$('#sets li a').swipe(function(event, data) {
-		console.log('rep was swiped');
-
-		var delete_check = confirm('Are you sure you want to delete this?');
-
-		if (delete_check){
-			console.log('deleting rep' + rep_info);
-			// setting exercise id to refresh sets for
-			var exercise_id = $('#ex_id').val();
-			var rep_info = $(this).attr('data-identifier');
-
-			database.transaction(
-				function(transaction) {
-					transaction.executeSql('DELETE FROM pump WHERE id=' + rep_info + ';', [], 
-					function() {
-						// refresh the exercise list
-						getSets(refreshSets, exercise_id);
-					}, errorHandler);
-				}
-			);
-		}
-	});
-
-
-
-
-	// when form is submitted
+	
+	// when set form is clicked
 	 set_form.submit(function(event){
 			// prevent the default submit
 		event.preventDefault();
@@ -600,15 +568,44 @@ $(function(){
 		}
 	});
 
+	// if a particular rep item is swiped
+	$('#sets li a').swipe(function(event, data) {
+		console.log('rep was swiped');
+
+		var delete_check = confirm('Are you sure you want to delete this?');
+
+		if (delete_check){
+			console.log('deleting rep' + rep_info);
+			// setting exercise id to refresh sets for
+			var exercise_id = $('#ex_id').val();
+			var rep_info = $(this).attr('data-identifier');
+
+			database.transaction(
+				function(transaction) {
+					transaction.executeSql('DELETE FROM pump WHERE id=' + rep_info + ';', [], 
+					function() {
+						// refresh the exercise list
+						getSets(refreshSets, exercise_id);
+					}, errorHandler);
+				}
+			);
+		}
+	});
 
 
+
+
+
+
+
+//////////////////
+// FORM ACTIONS //
 	// if export button was clicked
 	$('.leftButton').live(clickEvent, function(event, info){
 		console.log('export was clicked');
 		$('.info p').empty();
 		$('.info p').append("<p>Type an email address to send today's workout.</p>");
 	});
-
 
 
 	// setting em_content out here since submission uses it, too
