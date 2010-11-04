@@ -788,7 +788,7 @@ $(function(){
 
 		event.preventDefault();
 
-		console.log('form was submitted! attempting to create the workout');
+		console.log('form was submitted! attempting to create the exercise');
 
 		// getting the workout input
 		var exerciseInput = exercise_form.find("input.exercise_name");
@@ -811,7 +811,9 @@ $(function(){
 				exerciseInfo.val("");
 				workoutId.val("");
 				
-				window.location.href = '#ex';
+				refreshExercises();
+				
+				window.location = '#ex';
 				
 			});
 
