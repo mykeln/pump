@@ -184,17 +184,33 @@ var saveWorkout = function(workout,callback) {
 };
 
 // save a new exercise
-var saveExercise = function(exercise,exercise_info,callback) {
+var saveExercise = function(exercise,exercise_info,workout_id,callback) {
 	// needs workout passed to it so it knows what to name the workout
 	
-	// insert set into the database
+	// insert exercise into the database
 	database.transaction(function(transaction){
 		transaction.executeSql('INSERT INTO exercise (name,info) VALUES (?,?);',
 		[ exercise,exercise_info ],
 		function (transaction, results) {
+			// FIXME: unsure what this does
     	callback(results.insertId);
+
+			var ex_id = results.insertId;
+			
+			// add entry to connect exercise to a workout
+			database.transaction(function(transaction){
+				transaction.executeSql('INSERT INTO relationship (workout_id,exercise_id) VALUES (?,?);',
+				[ workout_id,ex_id ],
+				function (transaction, results) {
+					alert('inserted');
+		    }, errorHandler);
+			});
+			
     }, errorHandler);
 	});
+	
+
+
 };
 
 
@@ -311,6 +327,9 @@ var refreshExercises = function(workout_id,workout_name) {
 	$('#exercises').empty();
 
 	$('#ex .toolbar h1').append(workout_name);
+	
+	$('#addExerciseButton').attr('data-identifier', workout_id);
+	
 
 	// load the exercises for that workout
 	database.transaction(function(transaction) {
@@ -397,8 +416,6 @@ $(function(){
 		var workout_name = $(this).attr('title');
 		
 		refreshExercises(workout_id,workout_name);
-		
-		alert(workout_id);
 
 	});
 
@@ -733,8 +750,10 @@ $(function(){
 
 				// reset the workout input
 			 	workoutInput.val("");
+			
+				refreshWorkouts();
 
-				window.location.href = '#workouts';
+				window.location.href = '#home';
 
 			});
 
@@ -749,6 +768,21 @@ $(function(){
 	// bind the form to add a workout
 	var exercise_form = $("#exercise_form");
 
+	// when add button is clicked
+	$('#addExerciseButton').live(clickEvent, function(){
+		// getting workout id from button
+		var workout_id = $(this).attr('data-identifier');
+		
+		// getting workout input
+		var workoutInput = exercise_form.find("input.w_id");
+		
+		
+		// setting workout_id to hidden input on form
+		workoutInput.val(workout_id);
+		
+		
+	});
+
 	// if workout form is submitted
 	exercise_form.submit(function(event){
 
@@ -759,21 +793,26 @@ $(function(){
 		// getting the workout input
 		var exerciseInput = exercise_form.find("input.exercise_name");
 		var exerciseInfo  = exercise_form.find("input.exercise_info");
-
+		var workoutId			= exercise_form.find("input.w_id");
 
 		// getting the value of the workout input
-		var exercise = exerciseInput.val();
+		var exercise 			= exerciseInput.val();
 		var exercise_info = exerciseInfo.val();
+		var workout_id		= workoutId.val();
 
 		if(exercise.length > 0 && exercise_info.length > 0){
 			// save the exercise
-			saveExercise(exercise,exercise_info,function(){
+			saveExercise(exercise,exercise_info,workout_id,function(){
 
 				console.log('saving exercise:' + exercise);
 
 				// reset the workout input
 			 	exerciseInput.val("");
 				exerciseInfo.val("");
+				workoutId.val("");
+				
+				window.location.href = '#ex';
+				
 			});
 
 		} else {

@@ -33,7 +33,7 @@
   <div class="toolbar">
     <a class="back" href="#">Back</a>
     <h1>Workout</h1>
-    <a href="#add_exercise" class="add slideup" id="addExerciseButton">+</a>
+    <a href="#add_exercise" class="add slideup" data-identifier="x_placeholder" id="addExerciseButton">+</a>
   </div>
   <ul id="exercises" class="rounded">
     <!-- dynamically filled with exercises -->
@@ -134,6 +134,7 @@
     <p></p>
   </div>
   <form id="exercise_form" action="" method="post" accept-charset="utf-8">
+    <input type="hidden" name="w_id" class="w_id" value="x_placeholder">
     <ul class="rounded">
       <li>
         <input type="text" name="exercise_name" class="exercise_name" placeholder="Exercise Name">    
