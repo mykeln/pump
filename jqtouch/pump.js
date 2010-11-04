@@ -178,6 +178,12 @@ var saveWorkout = function(workout,callback) {
 		[ workout ],
 		function (transaction, results) {
     	callback(results.insertId);
+
+			refreshExercises(results.insertId);
+
+			jqtouch.goTo('#ex', 'slideleft');
+			
+			
     }, errorHandler);
 	});
 };
@@ -201,7 +207,12 @@ var saveExercise = function(exercise,exercise_info,workout_id,callback) {
 				transaction.executeSql('INSERT INTO relationship (workout_id,exercise_id) VALUES (?,?);',
 				[ workout_id,ex_id ],
 				function (transaction, results) {
-					alert('inserted');
+					
+					refreshExercises(workout_id);
+
+					jqtouch.goTo('#ex', 'slideleft');
+
+
 		    }, errorHandler);
 			});
 			
@@ -468,22 +479,27 @@ $(function(){
 	$('#ex li a').live(clickEvent, function(event, info){
 		console.log('exercise was clicked');
 
-		$('.info p').empty();		
+		$('.info p').empty();
 
 		// get the ID of the exercise from the 'data-identifier' attribute of the exercise tapped
 		var exercise_id 	= $(this).attr('data-identifier');
 
+
 		// get the set info of the exercise from the 'title' attribute of the exercise tapped
 		var exercise_info = $(this).attr('title');
 
+/*
 		var next_set = $(this).next('li a[data-identifier]').val();
 		// FIXME
 		alert(next_set);
+*/
 
 		// append a hidden input with this ID to the form, so when it's submitted we know
 		// which exercise to add the set to
 		$('#ex_id').val(exercise_id);
 
+		// refresh the exercise list
+		getSets(refreshSets, exercise_id);
 
 		// assign the exercise ID of the next exercise in the list to the 'next set' button
 		$('#next_set').attr('href', next_set);
@@ -516,8 +532,7 @@ $(function(){
 			// setting exercise id to refresh sets for
 			var exercise_id = $('#ex_id').val();
 
-			// refresh the exercise list
-			getSets(refreshSets, exercise_id);
+
 		}
 	});
 
@@ -713,7 +728,7 @@ $(function(){
 			window.location.href = 'https://www.trainingpeaks.com/TPWebServices/EasyFileUpload.ashx?username=' + username + '&password=' + password;
 
 			// redirecting user to the email link
-			window.location.href = '#home';
+			jQT.goBack();
 
 		} else {
 			console.log('whoops, something is wrong with what the user input');
@@ -752,7 +767,6 @@ $(function(){
 			
 				refreshWorkouts();
 
-				window.location.href = '#home';
 
 			});
 
@@ -810,9 +824,6 @@ $(function(){
 				exerciseInfo.val("");
 				workoutId.val("");
 				
-				refreshExercises();
-				
-				window.location = '#ex';
 				
 			});
 
