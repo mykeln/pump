@@ -210,7 +210,7 @@ var saveExercise = function(exercise,exercise_info,workout_id,callback) {
 					
 					refreshExercises(workout_id);
 
-					jqtouch.goTo('#ex', 'slidedown');
+					jqtouch.goBack();
 
 
 		    }, errorHandler);
