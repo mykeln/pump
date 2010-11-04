@@ -210,7 +210,7 @@ var saveExercise = function(exercise,exercise_info,workout_id,callback) {
 					
 					refreshExercises(workout_id);
 
-					jqtouch.goTo('#ex', 'slideleft');
+					jqtouch.goTo('#ex', 'slidedown');
 
 
 		    }, errorHandler);
@@ -218,9 +218,6 @@ var saveExercise = function(exercise,exercise_info,workout_id,callback) {
 			
     }, errorHandler);
 	});
-	
-
-
 };
 
 
@@ -386,6 +383,19 @@ $(function(){
 	if ($('#workouts').length) {  
 		refreshWorkouts();
 	}
+	
+	// when workouts list slides back in
+	$('#home').bind('pageAnimationStart', function(event, info){
+		if (info.direction == 'in'){
+	 		console.log('sliding workouts in');
+	
+			refreshWorkouts();
+
+			// set the info item back to the generic one
+			$('.info p').empty();
+			$('.info p').append('<p>Tap a workout to see exercises.</p>');
+		}
+	 });
 
 
 	// if a particular workout item is swiped
@@ -428,16 +438,6 @@ $(function(){
 
 	});
 
-	// when workouts list slides back in
-	$('#home').bind('pageAnimationStart', function(event, info){
-		if (info.direction == 'in'){
-	 		console.log('sliding workouts in');
-
-			// set the info item back to the generic one
-			$('.info p').empty();
-			$('.info p').append('<p>Tap a workout to see exercises.</p>');
-		}
-	 });
 
 
 	// sliding exercise list in
@@ -478,32 +478,31 @@ $(function(){
 	$('#ex li a').live(clickEvent, function(event, info){
 		console.log('exercise was clicked');
 
-		$('.info p').empty();
-
 		// get the ID of the exercise from the 'data-identifier' attribute of the exercise tapped
 		var exercise_id 	= $(this).attr('data-identifier');
 
-
 		// get the set info of the exercise from the 'title' attribute of the exercise tapped
 		var exercise_info = $(this).attr('title');
+		$('.info p').empty();
+		$('.info p').append('<p>' + exercise_info + '</p>');
 
-
-		// FIXME:
-		var next_set = $(this).next('li a[data-identifier]').text();
+		// refresh the exercise list
+		getSets(refreshSets, exercise_id);
+		
+		
+		// FIXME: get the next exercise in the workout
+		var next_set = $(this).next('li a').attr('data-identifier');
 		alert(next_set);
+		
+		// assign the exercise ID of the next exercise in the list to the 'next set' button
+		$('#next_set').attr('href', next_set);
 
 
 		// append a hidden input with this ID to the form, so when it's submitted we know
 		// which exercise to add the set to
 		$('#ex_id').val(exercise_id);
 
-		// refresh the exercise list
-		getSets(refreshSets, exercise_id);
 
-		// assign the exercise ID of the next exercise in the list to the 'next set' button
-		$('#next_set').attr('href', next_set);
-
-		$('.info p').append('<p>' + exercise_info + '</p>');
 		console.log('getting ready for exercise id: ' + exercise_id);
 	});
 
@@ -657,8 +656,6 @@ $(function(){
 	});
 
 
-
-
 	// bind the form to export today's exercises
 	var export_form = $("#export_form");
 
@@ -725,8 +722,6 @@ $(function(){
 			 	workoutInput.val("");
 			
 				refreshWorkouts();
-
-
 			});
 
 		} else {
@@ -748,11 +743,8 @@ $(function(){
 		// getting workout input
 		var workoutInput = exercise_form.find("input.w_id");
 		
-		
 		// setting workout_id to hidden input on form
 		workoutInput.val(workout_id);
-		
-		
 	});
 
 	// if workout form is submitted
@@ -782,18 +774,10 @@ $(function(){
 			 	exerciseInput.val("");
 				exerciseInfo.val("");
 				workoutId.val("");
-				
-				
 			});
-
 		} else {
 			console.log('whoops, something is wrong with what the user input');
 			alert("Fill out exercise name and info, please.");
 		}    
-
-
 	});
-
-
-
-	}); // end jQuery function();
+}); // end jQuery function();
