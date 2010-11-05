@@ -19,21 +19,9 @@ var jqtouch = $.jQTouch({
         ]
 });
 
-// defining db information
-var databaseOptions = {
-	fileName: "pump_db",
-	version: "1.0",
-	displayName: "Pump Workout Data",
-	maxSize: 20000
-};
-
 // connecting to db
-var database = openDatabase(
-	databaseOptions.fileName,
-	databaseOptions.version,
-	databaseOptions.displayName,
-	databaseOptions.maxSize
-);
+var database = openDatabase("pump_db", "1.0", "Pump Workout Data", 20000);
+
 
 /////////////////////////////////////
 // DATABASE HANDLERS ////////////////
@@ -324,7 +312,7 @@ var refreshWorkouts = function() {
 
 // refresh the exercises list
 var refreshExercises = function(workout_id,workout_name) {
-
+	
 	// empty the title of the workout
 	$('#ex .toolbar h1').empty();
 
@@ -364,14 +352,13 @@ var refreshExercises = function(workout_id,workout_name) {
 
 // when the DOM is ready, init scripts
 $(function(){
+	
 	// setting click event, so behavior is correct when viewing on iphone vs. simulator, or web page
 	var userAgent = navigator.userAgent.toLowerCase();
 	var isiPhone = (userAgent.indexOf('iphone') != -1 || userAgent.indexOf('ipod') != -1) ? true : false;
-	var clickEvent = isiPhone ? clickEvent : 'click';
-	console.log('User is: ' + userAgent + ', so I will treat all interactions as ' + clickEvent + 's');
+	clickEvent = isiPhone ? 'tap' : 'click';
 
-
-
+alert(clickEvent);
 
 ////////////////////////
 // INITIAL LOAD STATE //
@@ -398,14 +385,11 @@ $(function(){
 
 
 	// when a single workout is clicked
-	$('#workouts li a').live(clickEvent, function(event, info){
-
-		console.log('workout was clicked');
-
+	$('#workouts li a').live("click", function(event, info){
 		// get the id of the workout that was clicked
 		var workout_id	 = $(this).attr('data-identifier');
 		var workout_name = $(this).attr('title');
-		
+		alert(clickEvent);
 		refreshExercises(workout_id,workout_name);
 
 	});
@@ -444,6 +428,7 @@ $(function(){
 	$('#ex').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
 	 		console.log('sliding exercises in');
+	
 		}
 	 });
 	
