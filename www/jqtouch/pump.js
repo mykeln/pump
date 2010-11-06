@@ -180,6 +180,10 @@ var saveWorkout = function(workout,callback) {
     	callback(results.insertId);
 
 			refreshExercises(results.insertId);
+			
+			// empty the title of the workout
+			$('#ex .toolbar h1').empty();
+			$('#ex .toolbar h1').append(workout);
 
 			jqtouch.goTo('#ex', 'slideleft');
 			
@@ -309,6 +313,8 @@ var refreshWorkouts = function() {
 							function(rowIndex) {
 								var row = results.rows.item(rowIndex);
 								// adding counter to each workout item
+								// FIXME: it's only appending the count to the first item, but is successfully counting for
+								// the other exercises?! wtf!
 								$('#ex_item[data-identifier=' + workout_id + ']').append('<small class="counter">' + row.count + '</small>');
 							}
 						);
