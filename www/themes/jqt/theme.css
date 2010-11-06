@@ -194,7 +194,7 @@ body {
     text-shadow: rgba(0,0,0,.2) 0 1px 1px;
 }
 #jqt ul li a.active, #jqt ul li a.button {
-    background-color: #53b401;
+    background-color: red; /* changed 53b401 to red */
     color: #fff;
 }
 #jqt ul li a.active.loading {

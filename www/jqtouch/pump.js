@@ -19,6 +19,9 @@ var jqtouch = $.jQTouch({
         ]
 });
 
+// setting whether seed data should be loaded or not
+var loadseed = false;
+
 // connecting to db
 var database = openDatabase("pump_db", "1.0", "Pump Workout Data", 20000);
 
@@ -27,11 +30,14 @@ var database = openDatabase("pump_db", "1.0", "Pump Workout Data", 20000);
 // DATABASE HANDLERS ////////////////
 /////////////////////////////////////
 
-// setting dataLoad object, which stores the state of the database
+// setting dataLoad object, which stores the state of the seed data
 var dataLoad = localStorage.getItem('data');
 
+var dbLoad = localStorage.getItem('db');
+
+
 // if the database isn't loaded yet
-if (!(dataLoad)){
+if (!(dbLoad)){
 	
 	// create the tables
 	console.log('this is the first run, so i am loading the db');
@@ -79,59 +85,66 @@ if (!(dataLoad)){
 			");"
 		);
 	}, errorHandler);
-
-	// grab seed data from a json file
-	$.getJSON("./pump_seed.js", function(data){
-		$.each(data.workouts, function(i,item){
-			// for each of the workouts found, assign them to variables
-			var workoutImportName	= item.name;
-			var workoutImportType	= item.type;
 	
-			// insert each workout into the db
-			database.transaction(function(transaction) {
-				transaction.executeSql('INSERT OR IGNORE INTO workout (name,type) VALUES (?, ?);',
-				[ workoutImportName, workoutImportType ]);
-			});
-		});
-
-		$.each(data.exercises, function(i,item){
-			// for each of the exercises found, assign them to variables
-			var exerciseImportName = item.name;
-			var exerciseImportInfo = item.info;
-		
-			// split the 'workouts' object in the json into separate parts
-			// this is how the app knows which exercise to assign to which workout
-			// FIXME: find a better way to do this
-			var exerciseImportWorkouts = item.workouts.split(',');
+	// setting db loaded to true
+	localStorage.setItem('db', true);
 	
-			// setting exercise_id here so the nested each below can access it
-			var exercise_id = null;
-
-			// inserting item into the db
-			database.transaction(function(transaction){
-				transaction.executeSql('INSERT OR IGNORE INTO exercise (name,info) VALUES (?, ?);',
-				[ exerciseImportName, exerciseImportInfo ],
-				function (transaction, results) {
-					// getting the id of the inserted exercise
-					exercise_id = results.insertId;
-				});
-			});
-		
-			$.each(exerciseImportWorkouts, function(j,workout_id){
-				// for each exercise/workout combination, add an entry to the relationship table
-				database.transaction(function(transaction) {
-						transaction.executeSql('INSERT OR IGNORE INTO relationship (exercise_id,workout_id) VALUES (?, ?);',
-						[ exercise_id, workout_id ]);
-				});
-			});
-		});
-	});
-	
-	// setting data loaded to true
-	localStorage.setItem('data', true);
-
 }
 
+if (loadseed == true){
+	if (!(dataLoad)){
+		// grab seed data from a json file
+		$.getJSON("./pump_seed.js", function(data){
+			$.each(data.workouts, function(i,item){
+				// for each of the workouts found, assign them to variables
+				var workoutImportName	= item.name;
+				var workoutImportType	= item.type;
+	
+				// insert each workout into the db
+				database.transaction(function(transaction) {
+					transaction.executeSql('INSERT OR IGNORE INTO workout (name,type) VALUES (?, ?);',
+					[ workoutImportName, workoutImportType ]);
+				});
+			});
+
+			$.each(data.exercises, function(i,item){
+				// for each of the exercises found, assign them to variables
+				var exerciseImportName = item.name;
+				var exerciseImportInfo = item.info;
+		
+				// split the 'workouts' object in the json into separate parts
+				// this is how the app knows which exercise to assign to which workout
+				// FIXME: find a better way to do this
+				var exerciseImportWorkouts = item.workouts.split(',');
+	
+				// setting exercise_id here so the nested each below can access it
+				var exercise_id = null;
+
+				// inserting item into the db
+				database.transaction(function(transaction){
+					transaction.executeSql('INSERT OR IGNORE INTO exercise (name,info) VALUES (?, ?);',
+					[ exerciseImportName, exerciseImportInfo ],
+					function (transaction, results) {
+						// getting the id of the inserted exercise
+						exercise_id = results.insertId;
+					});
+				});
+		
+				$.each(exerciseImportWorkouts, function(j,workout_id){
+					// for each exercise/workout combination, add an entry to the relationship table
+					database.transaction(function(transaction) {
+							transaction.executeSql('INSERT OR IGNORE INTO relationship (exercise_id,workout_id) VALUES (?, ?);',
+							[ exercise_id, workout_id ]);
+					});
+				});
+			});
+		});
+
+		// setting data loaded to true
+		localStorage.setItem('data', true);
+
+	}
+}
 
 /////////////////////////////////////
 // TRANSACTION HANDLERS /////////////
@@ -358,14 +371,14 @@ $(function(){
 	var isiPhone = (userAgent.indexOf('iphone') != -1 || userAgent.indexOf('ipod') != -1) ? true : false;
 	clickEvent = isiPhone ? 'tap' : 'click';
 
-alert(clickEvent);
-
 ////////////////////////
 // INITIAL LOAD STATE //
 	// when the workouts div exists in the DOM
-	if ($('#home').length) {  
-		refreshWorkouts();
-	}
+
+$(window).load(function() {
+	refreshWorkouts();
+
+});
 	
 
 /////////////////////
@@ -389,7 +402,7 @@ alert(clickEvent);
 		// get the id of the workout that was clicked
 		var workout_id	 = $(this).attr('data-identifier');
 		var workout_name = $(this).attr('title');
-		alert(clickEvent);
+
 		refreshExercises(workout_id,workout_name);
 
 	});

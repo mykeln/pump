@@ -8,7 +8,7 @@
 	"exercises" : [
 	{
 	"name" : "Sample Exercise",
-	"info" : "Swipe entries to delete.",
+	"info" : "3 sets of 5 @ 100 lbs.",
   "workouts" : "1"
 	}
 	]
