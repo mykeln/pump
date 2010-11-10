@@ -395,6 +395,7 @@ $(window).load(function() {
 	 		console.log('sliding workouts in');
 
 			refreshWorkouts();
+			
 
 			// set the info item back to the generic one
 			$('.info p').empty();
@@ -404,7 +405,7 @@ $(window).load(function() {
 
 
 	// when a single workout is clicked
-	$('#workouts li a').live("click", function(event, info){
+	$('#workouts li a').livequery(clickEvent, function(event, info){
 		// get the id of the workout that was clicked
 		var workout_id	 = $(this).attr('data-identifier');
 		var workout_name = $(this).attr('title');
@@ -447,12 +448,13 @@ $(window).load(function() {
 	$('#ex').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
 	 		console.log('sliding exercises in');
+
 	
 		}
 	 });
 	
 	// when a single exercise is clicked
-	$('#ex li a, #next_set').live(clickEvent, function(event, info){
+	$('#ex li a, #next_set').livequery(clickEvent, function(event, info){
 		console.log('exercise was clicked');
 
 		// get the ID of the exercise from the 'data-identifier' attribute of the exercise tapped
@@ -605,7 +607,7 @@ $(window).load(function() {
 //////////////////
 // FORM ACTIONS //
 	// if export button was clicked
-	$('.leftButton').live(clickEvent, function(event, info){
+	$('.leftButton').livequery(clickEvent, function(event, info){
 		console.log('export was clicked');
 		$('.info p').empty();
 		$('.info p').append("<p>Type an email address to send today's workout.</p>");
@@ -737,7 +739,7 @@ $(window).load(function() {
 	var exercise_form = $("#exercise_form");
 
 	// when add button is clicked
-	$('#addExerciseButton').live(clickEvent, function(){
+	$('#addExerciseButton').livequery(clickEvent, function(){
 		// getting workout id from button
 		var workout_id = $(this).attr('data-identifier');
 		
