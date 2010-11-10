@@ -316,8 +316,6 @@ var refreshWorkouts = function() {
 							function(rowIndex) {
 								var row = results.rows.item(rowIndex);
 								// adding counter to each workout item
-								// FIXME: it's only appending the count to the first item, but is successfully counting for
-								// the other exercises?! wtf!
 								$('#workouts li[data-identifier=' + workout_id + ']').append('<small class="counter">' + row.count + '</small>');
 							}
 						);
@@ -402,6 +400,17 @@ $(window).load(function() {
 			$('.info p').append('<p>Tap a workout to see exercises.</p>');
 		}
 	 });
+	
+	// when workouts list finishes sliding in
+	$('#home').bind('pageAnimationEnd', function(event, info){
+		if (info.direction == 'in'){
+	 		console.log('slid workouts in');
+
+			// set the info item back to the generic one
+			$('.info p').empty();
+			$('.info p').append('<p>Tap a workout to see exercises.</p>');
+		}
+	 });
 
 
 	// when a single workout is clicked
@@ -444,12 +453,11 @@ $(window).load(function() {
 
 //////////////////////
 // EXERCISE ACTIONS //
-	// sliding exercise list in
-	$('#ex').bind('pageAnimationStart', function(event, info){
+	// exercise list finished sliding in
+	$('#ex').bind('pageAnimationEnd', function(event, info){
 		if (info.direction == 'in'){
 	 		console.log('sliding exercises in');
-
-	
+			$('.info p').empty();
 		}
 	 });
 	
