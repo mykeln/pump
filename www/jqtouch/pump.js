@@ -303,9 +303,12 @@ var refreshWorkouts = function() {
 				results.rows,
 				function(rowIndex) {
 					var row = results.rows.item(rowIndex);
-
 					var workout_id = row.id;
-
+					
+					// render single workout
+					$('#workouts').append('<li data-identifier="' + row.id + '"><a href="#ex" id="ex_item" data-identifier="' + row.id + '" title="' + row.name + '">' + row.name + '</a></li>');
+					
+					// append exercise count to each workout item
 					transaction.executeSql('SELECT count() AS count FROM relationship WHERE workout_id=' + workout_id, [],
 					function (transaction, results) {
 						$.each(
@@ -315,13 +318,10 @@ var refreshWorkouts = function() {
 								// adding counter to each workout item
 								// FIXME: it's only appending the count to the first item, but is successfully counting for
 								// the other exercises?! wtf!
-								$('#ex_item[data-identifier=' + workout_id + ']').append('<small class="counter">' + row.count + '</small>');
+								$('#workouts li[data-identifier=' + workout_id + ']').append('<small class="counter">' + row.count + '</small>');
 							}
 						);
-					}, errorHandler);
-
-					// render single workout
-					$('#workouts').append('<li><a href="#ex" id="ex_item" data-identifier="' + row.id + '" title="' + row.name + '">' + row.name + '</a></li>');
+					}, errorHandler); // end count append
 				}
 			);
 		}, errorHandler);
