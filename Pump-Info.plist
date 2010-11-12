@@ -5,7 +5,7 @@
 	<key>CFBundleIconFiles</key>
 	<array>
 		<string>icon.png</string>
-		<string>icon-72.png</string>
+		<string>apple-touch-icon.png</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -20,12 +20,12 @@
 	<string>English</string>
 	<key>CFBundleDisplayName</key>
 	<string>${PRODUCT_NAME}</string>
+	<key>UILaunchImageFile~iphone</key>
+	<string>Default.png</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
 	<string>icon.png</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -48,5 +48,7 @@
 	<string>-iPad</string>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleBlackOpaque</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.mykel.pump</string>
 </dict>
 </plist>

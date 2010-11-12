@@ -441,6 +441,7 @@ $(window).load(function() {
 				function(transaction) {
 					transaction.executeSql('DELETE FROM workout WHERE id=' + workout_id + ';', [], 
 					function() {
+						refreshWorkouts();
 						jqtouch.goTo('#home', 'slideleft');
 					}, errorHandler);
 				}
