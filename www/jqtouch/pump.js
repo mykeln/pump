@@ -284,6 +284,25 @@ var refreshSets = function(results) {
 	}
 };
 
+var updateRepScreen = function(elem,exercise_id,exercise_info){
+  $('.info p').empty();
+	$('.info p').append('<p>' + exercise_info + '</p>');
+
+	// refresh the exercise list
+	getSets(refreshSets, exercise_id);
+
+	// get the next exercise id in the workout
+	var next_set = $(elem).parent('li').next('li').find('a').attr('data-identifier');
+
+	// assign the exercise ID of the next exercise in the list to the 'next set' button
+	$('#next_set').attr('data-identifier', next_set);
+
+
+	// append a hidden input with this ID to the form, so when it's submitted we know
+	// which exercise to add the set to
+	$('#ex_id').val(exercise_id);
+}
+
 // refresh the workouts list
 var refreshWorkouts = function() {
 
@@ -442,6 +461,29 @@ $(window).load(function() {
 
 //////////////////////
 // EXERCISE ACTIONS //
+//TO DO: Maybe make it so the next button turns into a
+// "Finished" button when there are no more elements in
+// the exercises ul
+// When "Finished" is clicked it would go back to the workout screen
+
+$("#nextButton").livequery(clickEvent, function(event, info){
+ var cur_ex_id = $("#ex_id").val();
+ 
+ // some jquery magic to get the next li in the exercise list
+ var next_li = $("#exercises").find("li a[data-identifier=\"" + cur_ex_id + "\"]").parent().next().find("a");
+ 
+	// get the ID of the exercise from the 'data-identifier' attribute of the exercise tapped
+	var exercise_id 	= $(next_li).attr('data-identifier');
+
+	// get the set info of the exercise from the 'title' attribute of the exercise tapped
+	var exercise_info = $(next_li).attr('title');
+	if(exercise_id == undefined){
+	  alert("Your workout is finished!");
+	  return false;
+	}
+	updateRepScreen(next_li,exercise_id,exercise_info);
+ 
+});
 	// exercise list finished sliding in
 	$('#ex').bind('pageAnimationEnd', function(event, info){
 		if (info.direction == 'in'){
@@ -449,6 +491,8 @@ $(window).load(function() {
 			$('.info p').empty();
 		}
 	 });
+	 
+	 
 	
 	// when a single exercise is clicked
 	$('#ex li a, #next_set').livequery(clickEvent, function(event, info){
@@ -459,22 +503,7 @@ $(window).load(function() {
 
 		// get the set info of the exercise from the 'title' attribute of the exercise tapped
 		var exercise_info = $(this).attr('title');
-		$('.info p').empty();
-		$('.info p').append('<p>' + exercise_info + '</p>');
-
-		// refresh the exercise list
-		getSets(refreshSets, exercise_id);
-
-		// get the next exercise id in the workout
-		var next_set = $(this).parent('li').next('li').find('a').attr('data-identifier');
-
-		// assign the exercise ID of the next exercise in the list to the 'next set' button
-		$('#next_set').attr('data-identifier', next_set);
-
-
-		// append a hidden input with this ID to the form, so when it's submitted we know
-		// which exercise to add the set to
-		$('#ex_id').val(exercise_id);
+		updateRepScreen(this,exercise_id,exercise_info);
 
 
 		console.log('getting ready for exercise id: ' + exercise_id);
