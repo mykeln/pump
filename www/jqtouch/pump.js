@@ -295,7 +295,7 @@ var refreshWorkouts = function() {
 
 	// when a single workout is clicked, load the exercises for that workout
 	database.transaction(function(transaction) {
-		transaction.executeSql('SELECT workout.id,workout.name,workout.type FROM workout ORDER BY workout.name ASC;', [],
+		transaction.executeSql('select workout.id,workout.name, workout.type, count(*) as count from relationship inner join workout on (relationship.workout_id = workout.id) group by workout.id order by workout.name;', [],
 		function (transaction, results) {
 			console.log('rendering workouts');
 
@@ -308,18 +308,9 @@ var refreshWorkouts = function() {
 					// render single workout
 					$('#workouts').append('<li data-identifier="' + row.id + '"><a href="#ex" id="ex_item" data-identifier="' + row.id + '" title="' + row.name + '">' + row.name + '</a></li>');
 					
-					// append exercise count to each workout item
-					transaction.executeSql('SELECT count() AS count FROM relationship WHERE workout_id=' + workout_id, [],
-					function (transaction, results) {
-						$.each(
-							results.rows,
-							function(rowIndex) {
-								var row = results.rows.item(rowIndex);
-								// adding counter to each workout item
-								$('#workouts li[data-identifier=' + workout_id + ']').append('<small class="counter">' + row.count + '</small>');
-							}
-						);
-					}, errorHandler); // end count append
+					// adding counter to each workout item
+					$('#workouts li[data-identifier=' + workout_id + ']').append('<small class="counter">' + row.count + '</small>');
+							
 				}
 			);
 		}, errorHandler);
@@ -616,12 +607,6 @@ $(window).load(function() {
 //////////////////
 // FORM ACTIONS //
 	// if export button was clicked
-	$('.leftButton').livequery(clickEvent, function(event, info){
-		console.log('export was clicked');
-		$('.info p').empty();
-		$('.info p').append("<p>Type an email address to send today's workout.</p>");
-	});
-
 
 	// setting em_content out here since submission uses it, too
 	var em_content = "";	
@@ -630,7 +615,7 @@ $(window).load(function() {
 	// flipping export pane in
 	$('#export').bind('pageAnimationStart', function(event, info){
 		if (info.direction == 'in'){
-
+      $('.info p').html("<p>Type an email address to send today's workout.</p>");
 			console.log('flipping export pane in');
 
 			$('#em_sets').empty();
