@@ -295,7 +295,7 @@ var refreshWorkouts = function() {
 
 	// when a single workout is clicked, load the exercises for that workout
 	database.transaction(function(transaction) {
-		transaction.executeSql('select workout.id,workout.name, workout.type, count(*) as count from relationship inner join workout on (relationship.workout_id = workout.id) group by workout.id order by workout.name;', [],
+		transaction.executeSql('select workout.id,workout.name, workout.type, count(relationship.exercise_id) as count from workout left join relationship on (relationship.workout_id = workout.id) group by workout.id order by workout.name;', [],
 		function (transaction, results) {
 			console.log('rendering workouts');
 
@@ -321,13 +321,10 @@ var refreshWorkouts = function() {
 // refresh the exercises list
 var refreshExercises = function(workout_id,workout_name) {
 	
-	// empty the title of the workout
-	$('#ex .toolbar h1').empty();
-
 	// empty current list of exercises
 	$('#exercises').empty();
-
-	$('#ex .toolbar h1').append(workout_name);
+  // replace the title of the workout
+	$('#ex .toolbar h1').html(workout_name);
 	
 	$('#addExerciseButton').attr('data-identifier', workout_id);
 	
