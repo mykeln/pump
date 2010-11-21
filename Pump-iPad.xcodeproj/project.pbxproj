@@ -53,9 +53,9 @@
 
 /* Begin PBXFileReference section */
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		1D3623240D0F684500981E51 /* PumpAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PumpAppDelegate.h"; sourceTree = "<group>"; };
-		1D3623250D0F684500981E51 /* PumpAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PumpAppDelegate.m"; sourceTree = "<group>"; };
-		1D6058910D05DD3D006BFB54 /* Pump.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pump.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D3623240D0F684500981E51 /* PumpAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PumpAppDelegate.h; sourceTree = "<group>"; };
+		1D3623250D0F684500981E51 /* PumpAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PumpAppDelegate.m; sourceTree = "<group>"; };
+		1D6058910D05DD3D006BFB54 /* Pump.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pump.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -79,7 +79,7 @@
 		306A5518116BF8E100DDE61E /* Default-Portrait.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait.png"; sourceTree = "<group>"; };
 		307D2A42123047800040C0FA /* PhoneGapBuildSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = PhoneGapBuildSettings.xcconfig; sourceTree = "<group>"; };
 		30E1352610E2C1420031B30D /* PhoneGap.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = PhoneGap.plist; sourceTree = "<group>"; };
-		32CA4F630368D1EE00C91783 /* Pump_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Pump_Prefix.pch"; sourceTree = "<group>"; };
+		32CA4F630368D1EE00C91783 /* Pump_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pump_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Pump-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Pump-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -226,8 +226,8 @@
 			dependencies = (
 				301BF551109A68C00062928A /* PBXTargetDependency */,
 			);
-			name = "Pump";
-			productName = "Pump";
+			name = Pump;
+			productName = Pump;
 			productReference = 1D6058910D05DD3D006BFB54 /* Pump.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -351,9 +351,9 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Pump_Prefix.pch";
+				GCC_PREFIX_HEADER = Pump_Prefix.pch;
 				INFOPLIST_FILE = "Pump-Info.plist";
-				PRODUCT_NAME = "Pump";
+				PRODUCT_NAME = Pump;
 				SDKROOT = iphoneos3.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -366,9 +366,9 @@
 				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Pump_Prefix.pch";
+				GCC_PREFIX_HEADER = Pump_Prefix.pch;
 				INFOPLIST_FILE = "Pump-Info.plist";
-				PRODUCT_NAME = "Pump";
+				PRODUCT_NAME = Pump;
 				SDKROOT = iphoneos3.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

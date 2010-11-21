@@ -285,8 +285,7 @@ var refreshSets = function(results) {
 };
 
 var updateRepScreen = function(elem,exercise_id,exercise_info){
-  $('.info p').empty();
-	$('.info p').append('<p>' + exercise_info + '</p>');
+	$('.info p').html('<p>' + exercise_info + '</p>');
 
 	// refresh the exercise list
 	getSets(refreshSets, exercise_id);
@@ -461,10 +460,6 @@ $(window).load(function() {
 
 //////////////////////
 // EXERCISE ACTIONS //
-//TO DO: Maybe make it so the next button turns into a
-// "Finished" button when there are no more elements in
-// the exercises ul
-// When "Finished" is clicked it would go back to the workout screen
 
 $("#nextButton").livequery(clickEvent, function(event, info){
  var cur_ex_id = $("#ex_id").val();
@@ -477,13 +472,18 @@ $("#nextButton").livequery(clickEvent, function(event, info){
 
 	// get the set info of the exercise from the 'title' attribute of the exercise tapped
 	var exercise_info = $(next_li).attr('title');
+						   
 	if(exercise_id == undefined){
-	  alert("Your workout is finished!");
-	  return false;
+		
+		jqtouch.goTo('#home', 'slideright');
+
+		return false;
 	}
+
 	updateRepScreen(next_li,exercise_id,exercise_info);
  
 });
+
 	// exercise list finished sliding in
 	$('#ex').bind('pageAnimationEnd', function(event, info){
 		if (info.direction == 'in'){
@@ -717,8 +717,19 @@ $("#nextButton").livequery(clickEvent, function(event, info){
 		}
 	});
 
+  
+  
+  
 	// bind the form to add a workout
 	var workout_form = $("#workout_form");
+	
+	// when add button is clicked
+	$('#addWorkoutButton').livequery(clickEvent, function(){
+		$('.info p').html("<p>Add a workout.</p>");
+				  
+		
+	});
+	
 
 	// if workout form is submitted
 	workout_form.submit(function(event){
@@ -760,6 +771,8 @@ $("#nextButton").livequery(clickEvent, function(event, info){
 
 	// when add button is clicked
 	$('#addExerciseButton').livequery(clickEvent, function(){
+		$('.info p').html("<p>Add an exercise to the workout.</p>");
+									  
 		// getting workout id from button
 		var workout_id = $(this).attr('data-identifier');
 		
@@ -768,6 +781,8 @@ $("#nextButton").livequery(clickEvent, function(event, info){
 		
 		// setting workout_id to hidden input on form
 		workoutInput.val(workout_id);
+									  
+		
 	});
 
 	// if workout form is submitted
