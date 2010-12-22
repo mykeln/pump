@@ -420,7 +420,7 @@ $(window).load(function() {
 
 
 	// when a single workout is clicked
-	$('#workouts li a').livequery(clickEvent, function(event, info){
+	$('#workouts li a').clickEvent(function(event, info){
 		// get the id of the workout that was clicked
 		var workout_id	 = $(this).attr('data-identifier');
 		var workout_name = $(this).attr('title');
@@ -461,7 +461,7 @@ $(window).load(function() {
 //////////////////////
 // EXERCISE ACTIONS //
 
-$("#nextButton").livequery(clickEvent, function(event, info){
+$("#nextButton").clickEvent(function(event, info){
  var cur_ex_id = $("#ex_id").val();
  
  // some jquery magic to get the next li in the exercise list
@@ -495,7 +495,7 @@ $("#nextButton").livequery(clickEvent, function(event, info){
 	 
 	
 	// when a single exercise is clicked
-	$('#ex li a, #next_set').livequery(clickEvent, function(event, info){
+	$('#ex li a, #next_set').clickEvent(function(event, info){
 		console.log('exercise was clicked');
 
 		// get the ID of the exercise from the 'data-identifier' attribute of the exercise tapped
@@ -724,7 +724,7 @@ $("#nextButton").livequery(clickEvent, function(event, info){
 	var workout_form = $("#workout_form");
 	
 	// when add button is clicked
-	$('#addWorkoutButton').livequery(clickEvent, function(){
+	$('#addWorkoutButton').clickEvent(function(){
 		$('.info p').html("<p>Add a workout.</p>");
 				  
 		
@@ -770,7 +770,7 @@ $("#nextButton").livequery(clickEvent, function(event, info){
 	var exercise_form = $("#exercise_form");
 
 	// when add button is clicked
-	$('#addExerciseButton').livequery(clickEvent, function(){
+	$('#addExerciseButton').clickEvent(function(){
 		$('.info p').html("<p>Add an exercise to the workout.</p>");
 									  
 		// getting workout id from button
